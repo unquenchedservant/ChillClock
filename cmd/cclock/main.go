@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"time"
 
@@ -14,95 +12,11 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/unquenchedservant/ChillClock/config"
+	"github.com/unquenchedservant/ChillClock/utilities"
 )
 
 // Digit definitions - each digit is 7 runes wide + 1 space trailing = 8 total
-var digits = map[rune][]string{
-	'0': {
-		" ██████ ",
-		" ██  ██ ",
-		" ██  ██ ",
-		" ██  ██ ",
-		" ██████ ",
-	},
-	'1': {
-		" ████   ",
-		"   ██   ",
-		"   ██   ",
-		"   ██   ",
-		" ██████ ",
-	},
-	'2': {
-		" ██████ ",
-		"     ██ ",
-		" ██████ ",
-		" ██     ",
-		" ██████ ",
-	},
-	'3': {
-		" ██████ ",
-		"     ██ ",
-		" ██████ ",
-		"     ██ ",
-		" ██████ ",
-	},
-	'4': {
-		" ██   ██ ",
-		" ██   ██ ",
-		" ███████ ",
-		"      ██ ",
-		"      ██ ",
-	},
-	'5': {
-		" ███████ ",
-		" ██      ",
-		" ███████ ",
-		"      ██ ",
-		" ███████ ",
-	},
-	'6': {
-		" ███████ ",
-		" ██      ",
-		" ███████ ",
-		" ██   ██ ",
-		" ███████ ",
-	},
-	'7': {
-		" ███████ ",
-		"      ██ ",
-		"      ██ ",
-		"      ██ ",
-		"      ██ ",
-	},
-	'8': {
-		" ███████ ",
-		" ██   ██ ",
-		" ███████ ",
-		" ██   ██ ",
-		" ███████ ",
-	},
-	'9': {
-		" ███████ ",
-		" ██   ██ ",
-		" ███████ ",
-		"      ██ ",
-		" ███████ ",
-	},
-	':': {
-		"      ",
-		"  ██  ",
-		"      ",
-		"  ██  ",
-		"      ",
-	},
-	' ': {
-		"     ",
-		"     ",
-		"     ",
-		"     ",
-		"     ",
-	},
-}
+
 
 type timerPhase int
 
@@ -140,19 +54,19 @@ const (
 )
 
 type model struct {
-	width           int
-	height          int
-	config          config.Config
-	timerRunning    bool
-	timerStart      time.Time
-	timerElapsed    time.Duration
-	currentPhase    timerPhase
-	lastPhase       timerPhase // Track last phase for ding detection
-	mode            viewMode
-	selectedField   configField
-	editingField    bool
-	inputBuffer     string
-	previousValue   int // Store previous value to restore if input is blank
+	width         int
+	height        int
+	config        config.Config
+	timerRunning  bool
+	timerStart    time.Time
+	timerElapsed  time.Duration
+	currentPhase  timerPhase
+	lastPhase     timerPhase // Track last phase for ding detection
+	mode          viewMode
+	selectedField configField
+	editingField  bool
+	inputBuffer   string
+	previousValue int // Store previous value to restore if input is blank
 }
 
 type tickMsg time.Time
@@ -167,8 +81,8 @@ type dingMsg struct{}
 
 func dingCmd(phase timerPhase, temp int) tea.Cmd {
 	return func() tea.Msg {
-		playBeep()
-		sendNotification(phase, temp)
+		utilities.PlayBeep()
+		utilities.SendNotification(utilities.TimerPhase(phase), temp)
 		return dingMsg{}
 	}
 }
@@ -457,7 +371,7 @@ func (m model) renderConfigView() string {
 
 	// Title
 	output.WriteString("\n")
-	output.WriteString(centerText(titleStyle.Render("Configuration"), m.width))
+	output.WriteString(utilities.CenterText(titleStyle.Render("Configuration"), m.width))
 	output.WriteString("\n\n")
 
 	fields := []struct {
@@ -508,7 +422,7 @@ func (m model) renderConfigView() string {
 			line = normalStyle.Render(line)
 		}
 
-		output.WriteString(centerText(line, m.width))
+		output.WriteString(utilities.CenterText(line, m.width))
 		output.WriteString("\n")
 	}
 
@@ -517,7 +431,7 @@ func (m model) renderConfigView() string {
 	if m.editingField {
 		helpText = "Type value | Enter: Save | Esc: Cancel"
 	}
-	output.WriteString(centerText(normalStyle.Render(helpText), m.width))
+	output.WriteString(utilities.CenterText(normalStyle.Render(helpText), m.width))
 
 	return output.String()
 }
@@ -528,7 +442,7 @@ func (m model) renderClockView() string {
 	dateStr := now.Format("2006-01-02")
 
 	// Render the clock
-	clockLines := renderLargeText(timeStr)
+	clockLines := utilities.RenderLargeText(timeStr)
 
 	// Style definitions
 	greenStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("10"))
@@ -547,20 +461,20 @@ func (m model) renderClockView() string {
 	}
 
 	// Add centered date in yellow
-	output.WriteString(centerText(yellowStyle.Render(dateStr), m.width))
+	output.WriteString(utilities.CenterText(yellowStyle.Render(dateStr), m.width))
 	output.WriteString("\n\n")
 
 	// Add centered clock in green
 	for _, line := range clockLines {
 		styledLine := greenStyle.Render(line)
-		output.WriteString(centerText(styledLine, m.width))
+		output.WriteString(utilities.CenterText(styledLine, m.width))
 		output.WriteString("\n")
 	}
 
 	// Add timer display
 	output.WriteString("\n")
 	timerText, timerStyle := m.getTimerDisplay()
-	output.WriteString(centerText(timerStyle.Render(timerText), m.width))
+	output.WriteString(utilities.CenterText(timerStyle.Render(timerText), m.width))
 
 	return output.String()
 }
@@ -580,7 +494,7 @@ func (m model) getTimerDisplay() (string, lipgloss.Style) {
 	}
 
 	// Calculate remaining time
-	
+
 	phase1Temp := m.config.Timer.Phase1Temp
 	phase2Temp := m.config.Timer.Phase2Temp
 	phase3Temp := m.config.Timer.Phase3Temp
@@ -612,96 +526,9 @@ func (m model) getTimerDisplay() (string, lipgloss.Style) {
 	return timerText, style
 }
 
-func renderLargeText(text string) []string {
-	var lines [5]strings.Builder
 
-	for _, char := range text {
-		digitLines, exists := digits[char]
-		if !exists {
-			digitLines = digits[' ']
-		}
 
-		for i, line := range digitLines {
-			lines[i].WriteString(line)
-		}
-	}
 
-	result := make([]string, 5)
-	for i, line := range lines {
-		result[i] = line.String()
-	}
-
-	return result
-}
-
-func centerText(text string, width int) string {
-	// Use lipgloss width calculation to handle ANSI codes
-	textWidth := lipgloss.Width(text)
-	if textWidth >= width {
-		return text
-	}
-
-	padding := (width - textWidth) / 2
-	return strings.Repeat(" ", padding) + text
-}
-
-func playBeep() {
-	// Play a system beep sound
-	switch runtime.GOOS {
-	case "linux":
-		// Try paplay (PulseAudio) first, fall back to speaker-test
-		cmd := exec.Command("paplay", "/usr/share/sounds/freedesktop/stereo/complete.oga")
-		if err := cmd.Run(); err != nil {
-			// Fallback to beep command or speaker-test
-			exec.Command("speaker-test", "-t", "sine", "-f", "1000", "-l", "1").Run()
-		}
-	case "darwin":
-		// macOS
-		exec.Command("afplay", "/System/Library/Sounds/Glass.aiff").Run()
-	case "windows":
-		// Windows - use rundll32 to play system sound
-		exec.Command("rundll32", "user32.dll,MessageBeep").Run()
-	default:
-		// Fallback: print bell character
-		fmt.Print("\a")
-	}
-}
-
-func sendNotification(phase timerPhase, temp int) {
-	var title, body string
-
-	switch phase {
-	case phase1:
-		title = "Phase 1"
-	case phase2:
-		title = "Phase 2"
-	case phase3:
-		title = "Phase 3"
-	case phaseCompleted:
-		title = "Timer Complete"
-		body = "All phases finished!"
-	default:
-		return
-	}
-
-	if phase != phaseCompleted {
-		body = fmt.Sprintf("%d°", temp)
-	}
-
-	switch runtime.GOOS {
-	case "linux":
-		// Use notify-send for desktop notifications
-		exec.Command("notify-send", "-u", "normal", "-t", "5000", title, body).Run()
-	case "darwin":
-		// macOS - use osascript to display notification
-		script := fmt.Sprintf(`display notification "%s" with title "%s"`, body, title)
-		exec.Command("osascript", "-e", script).Run()
-	case "windows":
-		// Windows - use PowerShell to show toast notification
-		script := fmt.Sprintf(`[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null; $Template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02); $RawXml = [xml] $Template.GetXml(); ($RawXml.toast.visual.binding.text|where {$_.id -eq "1"}).AppendChild($RawXml.CreateTextNode("%s")) > $null; ($RawXml.toast.visual.binding.text|where {$_.id -eq "2"}).AppendChild($RawXml.CreateTextNode("%s")) > $null; $SerializedXml = New-Object Windows.Data.Xml.Dom.XmlDocument; $SerializedXml.LoadXml($RawXml.OuterXml); $Toast = [Windows.UI.Notifications.ToastNotification]::new($SerializedXml); $Toast.Tag = "ChillClock"; $Toast.Group = "ChillClock"; $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("ChillClock"); $Notifier.Show($Toast);`, title, body)
-		exec.Command("powershell", "-Command", script).Run()
-	}
-}
 
 func writeTimerState(m model) error {
 	homeDir, err := os.UserHomeDir()
