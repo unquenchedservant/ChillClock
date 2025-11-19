@@ -13,7 +13,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"chillclock/config"
+	"github.com/unquenchedservant/ChillClock/config"
 )
 
 // Digit definitions - each digit is 7 runes wide + 1 space trailing = 8 total

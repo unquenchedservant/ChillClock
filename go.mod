@@ -1,4 +1,4 @@
-module chillclock
+module github.com/unquenchedservant/ChillClock
 
 go 1.25.4
 
