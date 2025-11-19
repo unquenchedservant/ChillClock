@@ -152,6 +152,7 @@ type model struct {
 	selectedField   configField
 	editingField    bool
 	inputBuffer     string
+	previousValue   int // Store previous value to restore if input is blank
 }
 
 type tickMsg time.Time
@@ -310,19 +311,57 @@ func (m model) handleConfigInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		// Handle input while editing
 		switch msg.String() {
 		case "enter":
-			// Save the value
-			if val := m.parseInput(); val >= 0 {
+			// Save the value if valid, otherwise restore previous value
+			if m.inputBuffer == "" {
+				// Restore previous value if input is blank
+				m.setFieldValue(m.previousValue)
+			} else if val := m.parseInput(); val >= 0 {
 				m.setFieldValue(val)
 				config.SaveConfig(m.config)
+			} else {
+				// Invalid input, restore previous value
+				m.setFieldValue(m.previousValue)
 			}
 			m.editingField = false
 			m.inputBuffer = ""
 		case "esc":
+			// Cancel editing and restore previous value
+			m.setFieldValue(m.previousValue)
 			m.editingField = false
 			m.inputBuffer = ""
 		case "backspace":
 			if len(m.inputBuffer) > 0 {
 				m.inputBuffer = m.inputBuffer[:len(m.inputBuffer)-1]
+			}
+		case "up", "k":
+			// Moving away from field - restore previous value if blank
+			if m.inputBuffer == "" {
+				m.setFieldValue(m.previousValue)
+			} else if val := m.parseInput(); val >= 0 {
+				m.setFieldValue(val)
+				config.SaveConfig(m.config)
+			} else {
+				m.setFieldValue(m.previousValue)
+			}
+			m.editingField = false
+			m.inputBuffer = ""
+			if m.selectedField > 0 {
+				m.selectedField--
+			}
+		case "down", "j":
+			// Moving away from field - restore previous value if blank
+			if m.inputBuffer == "" {
+				m.setFieldValue(m.previousValue)
+			} else if val := m.parseInput(); val >= 0 {
+				m.setFieldValue(val)
+				config.SaveConfig(m.config)
+			} else {
+				m.setFieldValue(m.previousValue)
+			}
+			m.editingField = false
+			m.inputBuffer = ""
+			if m.selectedField < fieldMax-1 {
+				m.selectedField++
 			}
 		default:
 			// Only accept digits
@@ -344,8 +383,10 @@ func (m model) handleConfigInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 				m.selectedField++
 			}
 		case "enter", " ":
+			// Store the current value and clear the input buffer
+			m.previousValue = m.getFieldValue()
 			m.editingField = true
-			m.inputBuffer = fmt.Sprintf("%d", m.getFieldValue())
+			m.inputBuffer = ""
 		}
 	}
 	return m, nil
@@ -438,7 +479,12 @@ func (m model) renderConfigView() string {
 
 		if f.field == m.selectedField {
 			if m.editingField {
-				line = fmt.Sprintf("  ▶ %s: %s%s", f.name, m.inputBuffer, f.unit)
+				// Show input buffer or placeholder if empty
+				displayValue := m.inputBuffer
+				if displayValue == "" {
+					displayValue = "_"
+				}
+				line = fmt.Sprintf("  ▶ %s: %s%s", f.name, displayValue, f.unit)
 				line = editingStyle.Render(line)
 			} else {
 				line = fmt.Sprintf("  ▶ %s: %d%s", f.name, value, f.unit)
@@ -731,6 +777,7 @@ func main() {
 		selectedField: fieldPhase1Duration,
 		editingField:  false,
 		inputBuffer:   "",
+		previousValue: 0,
 	}
 
 	p := tea.NewProgram(initialModel, tea.WithAltScreen())
