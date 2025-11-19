@@ -432,6 +432,7 @@ func (m model) renderConfigView() string {
 		helpText = "Type value | Enter: Save | Esc: Cancel"
 	}
 	output.WriteString(utilities.CenterText(normalStyle.Render(helpText), m.width))
+	output.WriteString("\n")
 	versionText := "Version 0.1.0"
 	output.WriteString(utilities.CenterText(normalStyle.Render(versionText), m.width))
 
