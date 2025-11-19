@@ -98,7 +98,7 @@ func writeTimerState(m model) error {
 	var output TimerOutput
 
 	if (!m.timerRunning && m.currentPhase == phaseNotStarted) || m.currentPhase == phaseCompleted {
-		output = TimerOutput{Text: "0.00", Class: "white"}
+		output = TimerOutput{Text: "0:00", Class: "white"}
 	} else {
 		minutes := int(m.timerElapsed.Minutes())
 		seconds := int(m.timerElapsed.Seconds()) % 60
