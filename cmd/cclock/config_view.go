@@ -192,7 +192,7 @@ func (m model) renderConfigView() string {
 	
 	output.WriteString(utilities.CenterText(normalStyle.Render(helpText), m.width))
 	output.WriteString("\n")
-	versionText := "v1.0.4a"
+	versionText := "v1.0.5"
 	output.WriteString(utilities.CenterText(normalStyle.Render(versionText), m.width))
 
 	return output.String()
