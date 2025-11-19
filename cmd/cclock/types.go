@@ -51,7 +51,7 @@ func tickCmd() tea.Cmd {
 	})
 }
 
-func dingCmd() tea.Cmd {
+func dingCmd(phase timerPhase, temp int) tea.Cmd {
 	return func() tea.Msg {
 		utilities.PlayBeep()
 		utilities.SendNotification(utilities.TimerPhase(phase), temp)

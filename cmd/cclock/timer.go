@@ -29,7 +29,7 @@ func (m model) handleTick() (tea.Model, tea.Cmd) {
 		} else if m.timerElapsed >= phase1Dur {
 			m.currentPhase = phase2
 		} else {
-			m.currentPhase = phase 1
+			m.currentPhase = phase1
 		}
 
 		writeTimerState(m)
@@ -136,7 +136,7 @@ func watchForFileClick() tea.Cmd {
 
 		clickFile := filepath.Join(homeDir, "dhv_timer_click1")
 		if _, err := os.Stat(clickFile); err == nil {
-			os.remove(clickFile)
+			os.Remove(clickFile)
 			return fileClickMsg{}
 		}
 		return nil

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"string"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
