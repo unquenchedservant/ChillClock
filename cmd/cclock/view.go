@@ -3,7 +3,7 @@ package main
 import (
 	"strings"
 	"time"
-	"github.com/unquenchedservant/ChillClock/utilities"
+	util "github.com/unquenchedservant/ChillClock/utilities"
 )
 
 func (m model) View() string {
@@ -23,7 +23,7 @@ func (m model) renderClockView() string {
 	timeStr := now.Format("15:04:05")
 	dateStr := now.Format("2006-01-02")
 
-	clockLines := utilities.RenderLargeText(timeStr)
+	clockLines := util.RenderLargeText(timeStr)
 
 	var output strings.Builder
 
@@ -34,18 +34,18 @@ func (m model) renderClockView() string {
 		output.WriteString("\n")
 	}
 
-	output.WriteString(utilities.CenterText(utilities.GetYellowStyle().Render(dateStr), m.width))
+	output.WriteString(util.CenterText(util.GetYellowStyle().Render(dateStr), m.width))
 	output.WriteString("\n\n")
 
 	for _, line := range clockLines {
-		styledLine := utilities.GetGreenStyle().Render(line)
-		output.WriteString(utilities.CenterText(styledLine, m.width))
+		styledLine := util.GetGreenStyle().Render(line)
+		output.WriteString(util.CenterText(styledLine, m.width))
 		output.WriteString("\n")
 	}
 
 	output.WriteString("\n")
 	timerText, timerStyle := m.getTimerDisplay()
-	output.WriteString(utilities.CenterText(timerStyle.Render(timerText), m.width))
+	output.WriteString(util.CenterText(timerStyle.Render(timerText), m.width))
 
 	return output.String()
 }

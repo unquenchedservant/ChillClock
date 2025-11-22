@@ -6,7 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/unquenchedservant/ChillClock/config"
-	"github.com/unquenchedservant/ChillClock/utilities"
+	util "github.com/unquenchedservant/ChillClock/utilities"
 )
 
 func (m model) handleConfigInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
@@ -123,7 +123,7 @@ func (m model) renderConfigView() string {
 	var output strings.Builder
 
 	output.WriteString("\n")
-	output.WriteString(utilities.CenterText(utilities.GetYellowStyle().Bold(true).Render("Configuration"), m.width))
+	output.WriteString(util.CenterText(util.GetYellowStyle().Bold(true).Render("Configuration"), m.width))
 	output.WriteString("\n\n")
 
 	fields := []struct {
@@ -150,10 +150,10 @@ func (m model) renderConfigView() string {
 					displayValue = "_"
 				}
 				line = fmt.Sprintf("  ▶ %s: %s%s", f.name, displayValue, f.unit)
-				line = utilities.GetEditingStyle().Render(line)
+				line = util.GetEditingStyle().Render(line)
 			} else {
 				line = fmt.Sprintf("  ▶ %s: %d%s", f.name, value, f.unit)
-                line = utilities.GetGreenStyle().Bold(true).Render(line)
+                line = util.GetGreenStyle().Bold(true).Render(line)
 			}
 		} else {
 			switch f.field{
@@ -171,10 +171,10 @@ func (m model) renderConfigView() string {
 				value = m.config.Timer.Phase3Temp
 			}
 			line = fmt.Sprintf("    %s: %d%s", f.name, value, f.unit)
-			line = utilities.GetNormalStyle().Render(line)
+			line = util.GetNormalStyle().Render(line)
 		}
 
-		output.WriteString(utilities.CenterText(line, m.width))
+		output.WriteString(util.CenterText(line, m.width))
 		output.WriteString("\n")
 	}
 
@@ -184,10 +184,10 @@ func (m model) renderConfigView() string {
         helpText = "Type value | Enter: Save | Esc: Cancel"
     }
 	
-	output.WriteString(utilities.CenterText(utilities.GetNormalStyle().Render(helpText), m.width))
+	output.WriteString(util.CenterText(util.GetNormalStyle().Render(helpText), m.width))
 	output.WriteString("\n")
 	versionText := "v1.0.6"
-	output.WriteString(utilities.CenterText(utilities.GetNormalStyle().Render(versionText), m.width))
+	output.WriteString(util.CenterText(util.GetNormalStyle().Render(versionText), m.width))
 
 	return output.String()
 }

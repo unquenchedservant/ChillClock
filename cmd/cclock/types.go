@@ -4,7 +4,7 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/unquenchedservant/ChillClock/utilities"
+	util "github.com/unquenchedservant/ChillClock/utilities"
 )
 
 type timerPhase int
@@ -53,8 +53,8 @@ func tickCmd() tea.Cmd {
 
 func dingCmd(phase timerPhase, temp int) tea.Cmd {
 	return func() tea.Msg {
-		utilities.PlayBeep()
-		utilities.SendNotification(utilities.TimerPhase(phase), temp)
+		util.PlayBeep()
+		util.SendNotification(util.TimerPhase(phase), temp)
 		return dingMsg{}
 	}
 }
