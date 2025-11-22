@@ -9,6 +9,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/unquenchedservant/ChillClock/utilities"
 )
 
 func (m model) handleTick() (tea.Model, tea.Cmd) {
@@ -55,13 +56,9 @@ func (m model) handleTick() (tea.Model, tea.Cmd) {
 }
 
 func (m model) getTimerDisplay() (string, lipgloss.Style) {
-	greenStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("10"))
-	yellowStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("11"))
-	redStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("9"))
-	whiteStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("15"))
 
 	if (!m.timerRunning && m.currentPhase == phaseNotStarted) || m.currentPhase == phaseCompleted {
-		return "Press Enter or Space to start timer, '?' for config", whiteStyle
+		return "Press Enter or Space to start timer, '?' for config", utilities.GetNormalStyle()
 	}
 
 	elapsed := m.timerElapsed
@@ -73,16 +70,16 @@ func (m model) getTimerDisplay() (string, lipgloss.Style) {
 	var temp int
 	switch m.currentPhase {
 	case phase1:
-		style = greenStyle
+		style = utilities.GetGreenStyle()
 		temp = m.config.Timer.Phase1Temp
 	case phase2:
-		style = yellowStyle
+		style = utilities.GetYellowStyle()
 		temp = m.config.Timer.Phase2Temp
 	case phase3:
-		style = redStyle
+		style = utilities.GetRedStyle()
 		temp = m.config.Timer.Phase3Temp
 	default:
-		style = whiteStyle
+		style = utilities.GetNormalStyle()
 	}
 	timerText += fmt.Sprintf(" Temp: %d°", temp)
 	return timerText, style

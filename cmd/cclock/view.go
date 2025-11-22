@@ -3,8 +3,6 @@ package main
 import (
 	"strings"
 	"time"
-
-	"github.com/charmbracelet/lipgloss"
 	"github.com/unquenchedservant/ChillClock/utilities"
 )
 
@@ -27,9 +25,6 @@ func (m model) renderClockView() string {
 
 	clockLines := utilities.RenderLargeText(timeStr)
 
-	greenStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("10"))
-	yellowStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("11"))
-
 	var output strings.Builder
 
 	totalLines := 1 + len(clockLines) + 3
@@ -39,11 +34,11 @@ func (m model) renderClockView() string {
 		output.WriteString("\n")
 	}
 
-	output.WriteString(utilities.CenterText(yellowStyle.Render(dateStr), m.width))
+	output.WriteString(utilities.CenterText(utilities.GetYellowStyle().Render(dateStr), m.width))
 	output.WriteString("\n\n")
 
 	for _, line := range clockLines {
-		styledLine := greenStyle.Render(line)
+		styledLine := utilities.GetGreenStyle().Render(line)
 		output.WriteString(utilities.CenterText(styledLine, m.width))
 		output.WriteString("\n")
 	}
