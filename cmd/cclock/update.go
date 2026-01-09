@@ -39,6 +39,10 @@ func (m model) handleClockInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.editingField = false
 			m.inputBuffer = ""
 		}
+	case "1":
+		return m.handleTimerToggle(TIMER_1), nil
+	case "2":
+		return m.handleTimerToggle(TIMER_2), nil
 	case "enter", "":
 		return m.handleTimerToggle(1), nil
 	}
