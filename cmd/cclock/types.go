@@ -27,18 +27,25 @@ const (
 type configField int
 
 const (
-	fieldPhase1Duration configField = iota
-	fieldPhase2Duration
-	fieldPhase3Duration
-	fieldPhase1Temp
-	fieldPhase2Temp
-	fieldPhase3Temp
+	fieldPhase1DurationT1 configField = iota
+	fieldPhase2DurationT1
+	fieldPhase3DurationT1
+	fieldPhase1TempT1
+	fieldPhase2TempT1
+	fieldPhase3TempT1
+	fieldPhase1DurationT2
+	fieldPhase2DurationT2
+	fieldPhase3DurationT2
+	fieldPhase1TempT2
+	fieldPhase2TempT2
+	fieldPhase3TempT2
 	fieldMax
 )
 
 type tickMsg time.Time
 type dingMsg struct{}
 type fileClickMsg struct{}
+type fileClickMsg2 struct{}
 
 type TimerOutput struct {
 	Text  string `json:"text"`

@@ -78,36 +78,60 @@ func (m *model) saveAndExitField() {
 
 func (m model) getFieldValue() int {
 	switch m.selectedField {
-	case fieldPhase1Duration:
-		return m.config.Timer.Phase1Duration
-	case fieldPhase2Duration:
-		return m.config.Timer.Phase2Duration
-	case fieldPhase3Duration:
-		return m.config.Timer.Phase3Duration
-	case fieldPhase1Temp:
-		return m.config.Timer.Phase1Temp
-	case fieldPhase2Temp:
-		return m.config.Timer.Phase2Temp
-	case fieldPhase3Temp:
-		return m.config.Timer.Phase3Temp
+	case fieldPhase1DurationT1:
+		return m.config.Timer.Phase1Duration_Timer1
+	case fieldPhase2DurationT1:
+		return m.config.Timer.Phase2Duration_Timer1
+	case fieldPhase3DurationT1:
+		return m.config.Timer.Phase3Duration_Timer1
+	case fieldPhase1TempT1:
+		return m.config.Timer.Phase1Temp_Timer1
+	case fieldPhase2TempT1:
+		return m.config.Timer.Phase2Temp_Timer1
+	case fieldPhase3TempT1:
+		return m.config.Timer.Phase3Temp_Timer1
+	case fieldPhase1DurationT2:
+		return m.config.Timer.Phase1Duration_Timer2
+	case fieldPhase2DurationT2:
+		return m.config.Timer.Phase2Duration_Timer2
+	case fieldPhase3DurationT2:
+		return m.config.Timer.Phase3Duration_Timer2
+	case fieldPhase1TempT2:
+		return m.config.Timer.Phase1Temp_Timer2
+	case fieldPhase2TempT2:
+		return m.config.Timer.Phase2Temp_Timer2
+	case fieldPhase3TempT2:
+		return m.config.Timer.Phase3Temp_Timer2
 	}
 	return 0
 }
 
 func (m *model) setFieldValue(val int) {
 	switch m.selectedField {
-	case fieldPhase1Duration:
-		m.config.Timer.Phase1Duration = val
-	case fieldPhase2Duration:
-		m.config.Timer.Phase2Duration = val
-	case fieldPhase3Duration:
-		m.config.Timer.Phase3Duration = val
-	case fieldPhase1Temp:
-		m.config.Timer.Phase1Temp = val
-	case fieldPhase2Temp:
-		m.config.Timer.Phase2Temp = val
-	case fieldPhase3Temp:
-		m.config.Timer.Phase3Temp = val
+	case fieldPhase1DurationT1:
+		m.config.Timer.Phase1Duration_Timer1 = val
+	case fieldPhase2DurationT1:
+		m.config.Timer.Phase2Duration_Timer1 = val
+	case fieldPhase3DurationT1:
+		m.config.Timer.Phase3Duration_Timer1 = val
+	case fieldPhase1TempT1:
+		m.config.Timer.Phase1Temp_Timer1 = val
+	case fieldPhase2TempT1:
+		m.config.Timer.Phase2Temp_Timer1 = val
+	case fieldPhase3TempT1:
+		m.config.Timer.Phase3Temp_Timer1 = val
+	case fieldPhase1DurationT2:
+		m.config.Timer.Phase1Duration_Timer2 = val
+	case fieldPhase2DurationT2:
+		m.config.Timer.Phase2Duration_Timer2 = val
+	case fieldPhase3DurationT2:
+		m.config.Timer.Phase3Duration_Timer2 = val
+	case fieldPhase1TempT2:
+		m.config.Timer.Phase1Temp_Timer2 = val
+	case fieldPhase2TempT2:
+		m.config.Timer.Phase2Temp_Timer2 = val
+	case fieldPhase3TempT2:
+		m.config.Timer.Phase3Temp_Timer2 = val
 	}
 }
 
@@ -131,12 +155,18 @@ func (m model) renderConfigView() string {
 		field configField
 		unit string
 	}{
-		{"Phase 1 Duration", fieldPhase1Duration, " minutes"},
-		{"Phase 2 Duration", fieldPhase2Duration, " minutes"},
-		{"Phase 3 Duration", fieldPhase3Duration, " minutes"},
-		{"Phase 1 Temperature", fieldPhase1Temp, "°"},
-		{"Phase 2 Temperature", fieldPhase2Temp, "°"},
-		{"Phase 3 Temperatuer", fieldPhase3Temp, "°"},
+		{"T1 - Phase 1 Duration", fieldPhase1DurationT1, " minutes"},
+		{"T1 - Phase 2 Duration", fieldPhase2DurationT1, " minutes"},
+		{"T1 - Phase 3 Duration", fieldPhase3DurationT1, " minutes"},
+		{"T1 - Phase 1 Temperature", fieldPhase1TempT1, "°"},
+		{"T1 - Phase 2 Temperature", fieldPhase2TempT1, "°"},
+		{"T1 - Phase 3 Temperatuer", fieldPhase3TempT1, "°"},
+		{"T2 - Phase 1 Duration", fieldPhase1DurationT2, " minutes"},
+		{"T2 - Phase 2 Duration", fieldPhase2DurationT2, " minutes"},
+		{"T2 - Phase 3 Duration", fieldPhase3DurationT2, " minutes"},
+		{"T2 - Phase 1 Temperature", fieldPhase1TempT2, "°"},
+		{"T2 - Phase 2 Temperature", fieldPhase2TempT2, "°"},
+		{"T2 - Phase 3 Temperatuer", fieldPhase3TempT2, "°"},
 	}
 
 	for _, f := range fields {
@@ -157,18 +187,30 @@ func (m model) renderConfigView() string {
 			}
 		} else {
 			switch f.field{
-			case fieldPhase1Duration:
-				value = m.config.Timer.Phase1Duration
-			case fieldPhase2Duration:
-				value = m.config.Timer.Phase2Duration
-			case fieldPhase3Duration:
-				value = m.config.Timer.Phase3Duration
-			case fieldPhase1Temp:
-				value = m.config.Timer.Phase1Temp
-			case fieldPhase2Temp:
-				value = m.config.Timer.Phase2Temp
-			case fieldPhase3Temp:
-				value = m.config.Timer.Phase3Temp
+			case fieldPhase1DurationT1:
+				value = m.config.Timer.Phase1Duration_Timer1
+			case fieldPhase2DurationT1:
+				value = m.config.Timer.Phase2Duration_Timer1
+			case fieldPhase3DurationT1:
+				value = m.config.Timer.Phase3Duration_Timer1
+			case fieldPhase1TempT1:
+				value = m.config.Timer.Phase1Temp_Timer1
+			case fieldPhase2TempT1:
+				value = m.config.Timer.Phase2Temp_Timer1
+			case fieldPhase3TempT1:
+				value = m.config.Timer.Phase3Temp_Timer1
+			case fieldPhase1DurationT2:
+				value = m.config.Timer.Phase1Duration_Timer2
+			case fieldPhase2DurationT2:
+				value = m.config.Timer.Phase2Duration_Timer2
+			case fieldPhase3DurationT2:
+				value = m.config.Timer.Phase3Duration_Timer2
+			case fieldPhase1TempT2:
+				value = m.config.Timer.Phase1Temp_Timer2
+			case fieldPhase2TempT2:
+				value = m.config.Timer.Phase2Temp_Timer2
+			case fieldPhase3TempT2:
+				value = m.config.Timer.Phase3Temp_Timer2
 			}
 			line = fmt.Sprintf("    %s: %d%s", f.name, value, f.unit)
 			line = util.GetNormalStyle().Render(line)

@@ -17,6 +17,7 @@ type model struct {
 	timerStart    time.Time
 	timerElapsed  time.Duration
 	currentPhase  timerPhase
+	timer         int
 	lastPhase     timerPhase // Track last phase for ding detection
 	mode          viewMode
 	selectedField configField
@@ -24,6 +25,12 @@ type model struct {
 	inputBuffer   string
 	previousValue int // Store previous value to restore if input is blank
 }
+
+const (
+	TIMER_1 = 1
+	TIMER_2 = 2
+	TIMER_DEFAULT = 1
+)
 
 func (m model) Init() tea.Cmd {
 	return tea.Batch(tickCmd(), watchForFileClick(), tea.EnterAltScreen)
@@ -47,7 +54,7 @@ func main() {
 		currentPhase:  phaseNotStarted,
 		lastPhase:     phaseNotStarted,
 		mode:          viewClock,
-		selectedField: fieldPhase1Duration,
+		selectedField: fieldPhase1DurationT1,
 		editingField:  false,
 		inputBuffer:   "",
 		previousValue: 0,

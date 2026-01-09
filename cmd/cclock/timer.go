@@ -15,10 +15,18 @@ import (
 func (m model) handleTick() (tea.Model, tea.Cmd) {
 	if m.timerRunning {
 		m.timerElapsed = time.Since(m.timerStart)
-
-		phase1Dur := time.Duration(m.config.Timer.Phase1Duration) * time.Minute
-		phase2Dur := time.Duration(m.config.Timer.Phase2Duration) * time.Minute
-		phase3Dur := time.Duration(m.config.Timer.Phase3Duration) * time.Minute
+		phase1Dur := time.Duration(0)
+		phase2Dur := time.Duration(0)
+		phase3Dur := time.Duration(0)
+		if m.timer == TIMER_1 {
+			phase1Dur = time.Duration(m.config.Timer.Phase1Duration_Timer1) * time.Minute
+			phase2Dur = time.Duration(m.config.Timer.Phase2Duration_Timer1) * time.Minute
+			phase3Dur = time.Duration(m.config.Timer.Phase3Duration_Timer1) * time.Minute
+		}else if m.timer == TIMER_2 {
+			phase1Dur = time.Duration(m.config.Timer.Phase1Duration_Timer2) * time.Minute
+			phase2Dur = time.Duration(m.config.Timer.Phase2Duration_Timer2) * time.Minute
+			phase3Dur = time.Duration(m.config.Timer.Phase3Duration_Timer2) * time.Minute
+		}
 		totalDur := phase1Dur + phase2Dur + phase3Dur
 
 		oldPhase := m.currentPhase
@@ -39,11 +47,23 @@ func (m model) handleTick() (tea.Model, tea.Cmd) {
 			var temp int
 			switch m.currentPhase {
 			case phase1:
-				temp = m.config.Timer.Phase1Temp
+				if m.timer == TIMER_1{
+					temp = m.config.Timer.Phase1Temp_Timer1
+				}else if m.timer == TIMER_2 {
+					temp = m.config.Timer.Phase1Temp_Timer2
+				}
 			case phase2:
-				temp = m.config.Timer.Phase2Temp
+				if m.timer == TIMER_1 {
+					temp = m.config.Timer.Phase2Temp_Timer1
+				}else if m.timer == TIMER_2 {
+					temp = m.config.Timer.Phase2Temp_Timer2
+				}
 			case phase3:
-				temp = m.config.Timer.Phase3Temp
+				if m.timer == TIMER_1 {
+					temp = m.config.Timer.Phase3Temp_Timer1
+				}else if m.timer == TIMER_2 {
+					temp = m.config.Timer.Phase3Temp_Timer2
+				}
 			case phaseCompleted:
 				temp = 0
 			}
@@ -64,20 +84,38 @@ func (m model) getTimerDisplay() (string, lipgloss.Style) {
 	elapsed := m.timerElapsed
 	minutes := int(elapsed.Minutes())
 	seconds := int(elapsed.Seconds()) % 60
-	timerText := fmt.Sprintf("Timer: %d:%02d", minutes, seconds)
+	duration := 0
+	if m.timer == TIMER_1 {
+		duration = m.config.Timer.Phase1Duration_Timer1 + m.config.Timer.Phase2Duration_Timer1 + m.config.Timer.Phase3Duration_Timer1
+	}else if m.timer == TIMER_2 {
+		duration = m.config.Timer.Phase1Duration_Timer2 + m.config.Timer.Phase2Duration_Timer2 + m.config.Timer.Phase3Duration_Timer2
+	}
+	timerText := fmt.Sprintf("Timer: %d:%02d (%d:00)", minutes, seconds, duration)
 
 	var style lipgloss.Style
 	var temp int
 	switch m.currentPhase {
 	case phase1:
 		style = util.GetGreenStyle()
-		temp = m.config.Timer.Phase1Temp
+		if m.timer == TIMER_1 {
+			temp = m.config.Timer.Phase1Temp_Timer1
+		}else if m.timer == TIMER_2{
+			temp = m.config.Timer.Phase1Temp_Timer2
+		}
 	case phase2:
 		style = util.GetYellowStyle()
-		temp = m.config.Timer.Phase2Temp
+		if m.timer == TIMER_1{
+			temp = m.config.Timer.Phase2Temp_Timer1
+		}else if m.timer == TIMER_2{
+			temp = m.config.Timer.Phase2Temp_Timer2
+		}
 	case phase3:
 		style = util.GetRedStyle()
-		temp = m.config.Timer.Phase3Temp
+		if m.timer == TIMER_1{
+			temp = m.config.Timer.Phase3Temp_Timer1
+		}else if m.timer == TIMER_2{
+			temp = m.config.Timer.Phase3Temp_Timer2
+		}
 	default:
 		style = util.GetNormalStyle()
 	}
@@ -135,6 +173,12 @@ func watchForFileClick() tea.Cmd {
 		if _, err := os.Stat(clickFile); err == nil {
 			os.Remove(clickFile)
 			return fileClickMsg{}
+		}
+
+		clickFile2 := filepath.Join(homeDir, "dhv_timer_click2")
+		if _, err := os.Stat(clickFile2); err == nil {
+			os.Remove(clickFile2)
+			return fileClickMsg2{}
 		}
 		return nil
 	}

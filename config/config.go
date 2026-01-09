@@ -13,24 +13,36 @@ type Config struct {
 
 // TimerConfig holds timer-specific configuration
 type TimerConfig struct {
-	Phase1Duration int `json:"phase1_duration_minutes"` // in minutes
-	Phase2Duration int `json:"phase2_duration_minutes"` // in minutes
-	Phase3Duration int `json:"phase3_duration_minutes"` // in minutes
-	Phase1Temp     int `json:"phase1_temp"`             // e.g., "225"
-	Phase2Temp     int `json:"phase2_temp"`             // e.g., "200"
-	Phase3Temp     int `json:"phase3_temp"`             // e.g., "175"
+	Phase1Duration_Timer1 int `json:"phase1_timer1_duration_minutes"`
+	Phase2Duration_Timer1 int `json:"phase2_timer1_duration_minutes"`
+	Phase3Duration_Timer1 int `json:"phase3_timer1_duration_minutes"`
+	Phase1Temp_Timer1     int `json:"phase1_timer1_temp"`
+	Phase2Temp_Timer1     int `json:"phase2_timer1_temp"`
+	Phase3Temp_Timer1     int `json:"phase3_timer1_temp"`
+	Phase1Duration_Timer2 int `json:"phase1_timer2_duration_minutes"`
+	Phase2Duration_Timer2 int `json:"phase2_timer2_duration_minutes"`
+	Phase3Duration_Timer2 int `json:"phase3_timer2_duration_minutes"`
+	Phase1Temp_Timer2     int `json:"phase1_timer2_temp"`
+	Phase2Temp_Timer2     int `json:"phase2_timer2_temp"`
+	Phase3Temp_Timer2     int `json:"phase3_timer2_temp"`
 }
 
 // DefaultConfig returns the default configuration
 func DefaultConfig() Config {
 	return Config{
 		Timer: TimerConfig{
-			Phase1Duration: 4,
-			Phase2Duration: 4,
-			Phase3Duration: 2,
-			Phase1Temp:     350,
-			Phase2Temp:     375,
-			Phase3Temp:     400,
+			Phase1Duration_Timer1: 4,
+			Phase2Duration_Timer1: 4,
+			Phase3Duration_Timer1: 2,
+			Phase1Temp_Timer1:     350,
+			Phase2Temp_Timer1:     375,
+			Phase3Temp_Timer1:     400,
+			Phase1Duration_Timer2: 4,
+			Phase2Duration_Timer2: 6,
+			Phase3Duration_Timer2: 5,
+			Phase1Temp_Timer2:     350,
+			Phase2Temp_Timer2:     375,
+			Phase3Temp_Timer2:     400,
 		},
 	}
 }

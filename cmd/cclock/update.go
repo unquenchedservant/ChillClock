@@ -17,7 +17,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 	case fileClickMsg:
-		return m.handleTimerToggle(), watchForFileClick()
+		return m.handleTimerToggle(TIMER_1), watchForFileClick()
+	case fileClickMsg2:
+		return m.handleTimerToggle(TIMER_2), watchForFileClick()
 	case tickMsg:
 		return m.handleTick()
 	case dingMsg:
@@ -33,23 +35,23 @@ func (m model) handleClockInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "?":
 		if !m.timerRunning {
 			m.mode = viewConfig
-			m.selectedField = fieldPhase1Duration
+			m.selectedField = fieldPhase1DurationT1
 			m.editingField = false
 			m.inputBuffer = ""
 		}
 	case "enter", "":
-		return m.handleTimerToggle(), nil
+		return m.handleTimerToggle(1), nil
 	}
 	return m, nil
 }
 
-func (m model) handleTimerToggle() model {
+func (m model) handleTimerToggle(timer int) model {
 	if !m.timerRunning {
 		m.timerRunning = true
 		m.timerStart = time.Now()
 		m.timerElapsed = 0
-		m.currentPhase = phase1
 		m.lastPhase = phaseNotStarted
+		m.timer = timer
 	} else {
 		m.timerRunning = false
 		m.timerElapsed = 0
