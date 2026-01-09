@@ -4,11 +4,21 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"runtime/debug"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/unquenchedservant/ChillClock/config"
 )
-var version = "dev"
+var version = getVersion()
+
+func getVersion() string {
+	if info, ok := debug.ReadBuildInfo(); ok {
+		if info.Main.Version != "(devel)" && info.Main.Version != "" {
+			return info.Main.Version
+		}
+	}
+	return "Didn't Work"
+}
 
 type model struct {
 	width         int
