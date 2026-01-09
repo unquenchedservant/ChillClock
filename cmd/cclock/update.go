@@ -44,7 +44,7 @@ func (m model) handleClockInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "2":
 		return m.handleTimerToggle(TIMER_2), nil
 	case "enter", "":
-		return m.handleTimerToggle(1), nil
+		return m.handleTimerToggle(TIMER_1), nil
 	}
 	return m, nil
 }
