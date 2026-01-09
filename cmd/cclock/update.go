@@ -47,12 +47,20 @@ func (m model) handleClockInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 				m.timer = TIMER_1
 			}
 		}
+	case "d":
+		if !m.timerRunning {
+			if m.timerDefault == TIMER_1 {
+				m.timerDefault = TIMER_2
+			}else if m.timerDefault == TIMER_2 {
+				m.timerDefault = TIMER_1
+			}
+		}
 	case "1":
 		return m.handleTimerToggle(TIMER_1), nil
 	case "2":
 		return m.handleTimerToggle(TIMER_2), nil
 	case "enter", "":
-		return m.handleTimerToggle(TIMER_1), nil
+		return m.handleTimerToggle(m.timerDefault), nil
 	}
 	return m, nil
 }

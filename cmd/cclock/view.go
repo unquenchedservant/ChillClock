@@ -45,7 +45,7 @@ func (m model) renderClockView() string {
 
 	output.WriteString("\n")
 	timerText, timerStyle := m.getTimerDisplay()
-	output.WriteString(util.CenterText(timerStyle.Render(timerText), m.width))
+	output.WriteString(timerStyle.Render(timerText))
 
 	return output.String()
 }

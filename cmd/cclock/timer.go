@@ -78,7 +78,19 @@ func (m model) handleTick() (tea.Model, tea.Cmd) {
 func (m model) getTimerDisplay() (string, lipgloss.Style) {
 
 	if (!m.timerRunning && m.currentPhase == phaseNotStarted) || m.currentPhase == phaseCompleted {
-		return "Press Enter or Space to start timer, '?' for config", util.GetNormalStyle()
+		currentDefault := ""
+		if m.timerDefault == TIMER_1{
+			duration := m.config.Timer.Phase1Duration_Timer1 + m.config.Timer.Phase2Duration_Timer1 + m.config.Timer.Phase3Duration_Timer1
+			currentDefault = fmt.Sprintf("Timer 1 (%dm)", duration)
+		}
+		if m.timerDefault == TIMER_2{
+			duration := m.config.Timer.Phase1Duration_Timer2 + m.config.Timer.Phase2Duration_Timer2 + m.config.Timer.Phase3Duration_Timer2
+			currentDefault = fmt.Sprintf("Timer 2 (%dm)", duration)
+		}
+		line1 := util.CenterText("Press Enter or Space to start default timer, '?' for config", m.width)
+		line2 := util.CenterText("'1|2' to start respective timer", m.width)
+		line3 := util.CenterText("(d)efault timer: " + currentDefault, m.width)
+		return line1 + "\n" + line2 + "\n" + line3, util.GetNormalStyle()
 	}
 
 	elapsed := m.timerElapsed
@@ -120,7 +132,8 @@ func (m model) getTimerDisplay() (string, lipgloss.Style) {
 		style = util.GetNormalStyle()
 	}
 	timerText += fmt.Sprintf(" Temp: %d°", temp)
-	return timerText, style
+	line := util.CenterText(timerText, m.width)
+	return line, style
 }
 
 func writeTimerState(m model) error {
