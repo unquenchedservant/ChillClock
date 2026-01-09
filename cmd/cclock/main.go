@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/unquenchedservant/ChillClock/config"
 )
+var version = "dev"
 
 type model struct {
 	width         int
