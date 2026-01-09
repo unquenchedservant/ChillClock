@@ -39,6 +39,14 @@ func (m model) handleClockInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.editingField = false
 			m.inputBuffer = ""
 		}
+	case "r":
+		if m.timerRunning {
+			if m.timer == TIMER_1 {
+				m.timer = TIMER_2
+			}else if m.timer == TIMER_2 {
+				m.timer = TIMER_1
+			}
+		}
 	case "1":
 		return m.handleTimerToggle(TIMER_1), nil
 	case "2":
