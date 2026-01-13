@@ -17,8 +17,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 	case fileClickMsg:
-		return m.handleTimerToggle(TIMER_1), watchForFileClick()
+		if m.timerDefault == TIMER_1 {
+			return m.handleTimerToggle(TIMER_1), watchForFileClick()
+		}else if m.timerDefault == TIMER_2 {
+			return m.handleTimerToggle(TIMER_2), watchForFileClick()
+		}
 	case fileClickMsg2:
+		if m.timerDefault == TIMER_1 {
+			return m.handleTimerToggle(TIMER_2), watchForFileClick()
+		}else if m.timerDefault == TIMER_2 {
+			return m.handleTimerToggle(TIMER_1), watchForFileClick()
+		}
 		return m.handleTimerToggle(TIMER_2), watchForFileClick()
 	case tickMsg:
 		return m.handleTick()
