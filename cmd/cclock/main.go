@@ -30,6 +30,7 @@ type model struct {
 	currentPhase  timerPhase
 	timer         int
 	timerDefault  int
+	configPage    int
 	lastPhase     timerPhase // Track last phase for ding detection
 	mode          viewMode
 	selectedField configField
@@ -41,6 +42,8 @@ type model struct {
 const (
 	TIMER_1 = 1
 	TIMER_2 = 2
+	CFG_PAGE_1 = 0
+	CFG_PAGE_2 = 1
 	TIMER_DEFAULT = 1
 )
 
@@ -70,7 +73,8 @@ func main() {
 		editingField:  false,
 		inputBuffer:   "",
 		previousValue: 0,
-		timerDefault: 1,
+		timerDefault: TIMER_1,
+		configPage: CFG_PAGE_1,
 	}
 
 	p := tea.NewProgram(initialModel, tea.WithAltScreen())

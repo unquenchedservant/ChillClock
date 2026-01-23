@@ -29,12 +29,20 @@ func (m model) handleConfigInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			}
 		case "up", "k":
 			m.saveAndExitField()
-			if m.selectedField > 0 {
+			minField := fieldPhase1DurationT1
+			if m.configPage == CFG_PAGE_2 {
+				minField = fieldPhase1DurationT2
+			}
+			if m.selectedField > minField {
 				m.selectedField--
 			}
 		case "down", "j":
 			m.saveAndExitField()
-			if m.selectedField < fieldMax - 1 {
+			maxField := fieldPhase3TempT1
+			if m.configPage == CFG_PAGE_2 {
+				maxField = fieldPhase3TempT2
+			}
+			if m.selectedField < maxField {
 				m.selectedField++
 			}
 		default:
@@ -47,11 +55,29 @@ func (m model) handleConfigInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		case "esc", "q", "?": 
 			m.mode = viewClock
 		case "up", "k":
-			if m.selectedField > 0 {
+			minField := fieldPhase1DurationT1
+			if m.configPage == CFG_PAGE_2 {
+				minField = fieldPhase1DurationT2
+			}
+			if m.selectedField > minField {
 				m.selectedField--
 			}
+		case "left", "h":
+			if m.configPage == CFG_PAGE_2 {
+				m.selectedField -= 6
+			}
+			m.configPage = CFG_PAGE_1
+		case "right", "l":
+			if m.configPage == CFG_PAGE_1 {
+				m.selectedField += 6
+			}
+			m.configPage = CFG_PAGE_2
 		case "down", "j":
-			if m.selectedField < fieldMax - 1 {
+			maxField := fieldPhase3TempT1
+			if m.configPage == CFG_PAGE_2 {
+				maxField = fieldPhase3TempT2
+			}
+			if m.selectedField < maxField {
 				m.selectedField++
 			}
 		case "enter", " ":
@@ -145,34 +171,51 @@ func (m model) parseInput() int {
 
 func (m model) renderConfigView() string {
 	var output strings.Builder
-
-	output.WriteString("\n")
-	output.WriteString(util.CenterText(util.GetYellowStyle().Bold(true).Render("Configuration"), m.width))
-	output.WriteString("\n\n")
-
 	fields := []struct {
-		name string
+		name string 
 		field configField
 		unit string
-	}{
-		{"T1 - Phase 1 Duration", fieldPhase1DurationT1, " minutes"},
-		{"T1 - Phase 2 Duration", fieldPhase2DurationT1, " minutes"},
-		{"T1 - Phase 3 Duration", fieldPhase3DurationT1, " minutes"},
-		{"T1 - Phase 1 Temperature", fieldPhase1TempT1, "°"},
-		{"T1 - Phase 2 Temperature", fieldPhase2TempT1, "°"},
-		{"T1 - Phase 3 Temperatuer", fieldPhase3TempT1, "°"},
-		{"T2 - Phase 1 Duration", fieldPhase1DurationT2, " minutes"},
-		{"T2 - Phase 2 Duration", fieldPhase2DurationT2, " minutes"},
-		{"T2 - Phase 3 Duration", fieldPhase3DurationT2, " minutes"},
-		{"T2 - Phase 1 Temperature", fieldPhase1TempT2, "°"},
-		{"T2 - Phase 2 Temperature", fieldPhase2TempT2, "°"},
-		{"T2 - Phase 3 Temperatuer", fieldPhase3TempT2, "°"},
+	}{}
+	minField := fieldPhase1DurationT1
+	maxField := fieldPhase3TempT1
+	if m.configPage == CFG_PAGE_2 {
+		minField = fieldPhase1DurationT2
+		maxField = fieldPhase3TempT2
+	}
+	output.WriteString("\n")
+	output.WriteString(util.CenterText(util.GetYellowStyle().Bold(true).Render(fmt.Sprintf("    Timer %d Configuration", m.configPage+1)), m.width))
+	output.WriteString("\n\n")
+	if m.configPage == CFG_PAGE_1 {
+		fields = []struct {
+			name string
+			field configField
+			unit string
+		}{
+			{"Phase 1 Duration", fieldPhase1DurationT1, " minutes"},
+			{"Phase 2 Duration", fieldPhase2DurationT1, " minutes"},
+			{"Phase 3 Duration", fieldPhase3DurationT1, " minutes"},
+			{"Phase 1 Temperature", fieldPhase1TempT1, "°"},
+			{"Phase 2 Temperature", fieldPhase2TempT1, "°"},
+			{"Phase 3 Temperature", fieldPhase3TempT1, "°"},
+		}
+	} else {
+		fields = []struct {
+			name string
+			field configField
+			unit string
+		}{
+			{"Phase 1 Duration", fieldPhase1DurationT2, " minutes"},
+			{"Phase 2 Duration", fieldPhase2DurationT2, " minutes"},
+			{"Phase 3 Duration", fieldPhase3DurationT2, " minutes"},
+			{"Phase 1 Temperature", fieldPhase1TempT2, "°"},
+			{"Phase 2 Temperature", fieldPhase2TempT2, "°"},
+			{"Phase 3 Temperature", fieldPhase3TempT2, "°"},
+		}
 	}
 
 	for _, f := range fields {
 		var line string
 		value := m.getFieldValue()
-
 		if f.field == m.selectedField {
 			if m.editingField {
 				displayValue := m.inputBuffer
@@ -221,7 +264,21 @@ func (m model) renderConfigView() string {
 	}
 
 	output.WriteString("\n")
-	helpText := "↑/↓: Navigate | Enter: Edit | Esc/q/?: Exit"
+	navigate_page := ""
+	up_down := ""
+	if m.configPage == CFG_PAGE_1 {
+		navigate_page = "→: Next Timer | "
+	}else if m.configPage == CFG_PAGE_2 {
+		navigate_page = "←: Prv. Timer | "
+	}
+	if m.selectedField == minField {
+		up_down = "↓: Navigate | "
+	}else if m.selectedField == maxField {
+		up_down ="↑: Navigate | "
+	}else {
+		up_down = "↑/↓: Navigate | "
+	}
+	helpText := fmt.Sprintf("%s%sEnter: Edit | Esc/q/?: Exit", navigate_page, up_down)
     if m.editingField {
         helpText = "Type value | Enter: Save | Esc: Cancel"
     }
