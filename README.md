@@ -6,7 +6,7 @@ Written in Go
 - [Install](#install)
 - [Screenshots](#screenshots)
 - [Status Bar Integrations](#status-bar-integrations)
-  - [Plasma Applet (Linux/KDE)](#plasma-linux-kde)
+  - [Plasma Applet (Linux/KDE)](#plasma-linuxkde)
   - [Waybar (Linux/Hyprland)](#waybar-linux-hyprland)
   - [SwiftBar (MacOS)](#swiftbar-macos)
 - [Thanks](#thanks)
