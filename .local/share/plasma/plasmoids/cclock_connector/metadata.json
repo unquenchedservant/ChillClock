@@ -1,0 +1,11 @@
+{
+  "KPlugin": {
+    "Name": "ChillClock Connector",
+    "Description": "Displays time from ChillClock",
+    "Id": "cclock_connector",
+    "Version": "1.0",
+    "Category": "Utilities"
+  },
+  "KPackageStructure": "Plasma/Applet",
+  "X-Plasma-API-Minimum-Version": "6.0"
+}

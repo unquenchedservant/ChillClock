@@ -6,6 +6,7 @@ Written in Go
 - [Install](#install)
 - [Screenshots](#screenshots)
 - [Status Bar Integrations](#status-bar-integrations)
+  - [Plasma Applet (Linux/KDE)](#plasma-linux-kde)
   - [Waybar (Linux/Hyprland)](#waybar-linux-hyprland)
   - [SwiftBar (MacOS)](#swiftbar-macos)
 - [Thanks](#thanks)
@@ -33,6 +34,19 @@ Make sure to add $HOME/go/bin to your PATH
 
 
 ## Status Bar Integrations
+### Plasma (Linux/KDE)
+
+![A yellow timer is showing along with other Plasma applets in the menu bar](image-6.png)
+
+Copy the cclock_connector folder from `.local/share/plasma/plasmoids/` into `~/.local/share/plasma/plasmoids` then either reboot or run `plasmashell --replace &` in a terminal. `ChillClock Connector` will then show as an applet option when editing a workspace 
+
+![ChillClock Connector showing with other Plasma applets](image-7.png)
+
+
+Left clicking the timer will start the default timer, right clicking the timer will start the secondary timer
+
+
+
 ### Waybar (Linux/Hyprland)
 ![A green timer is showing along with system icons in a system toolbar](image-2.png)
 
