@@ -63,6 +63,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	defaultTimer := cfg.Timer.DefaultTimer
+	if defaultTimer == 0 {
+		defaultTimer = TIMER_1
+	}
+
 	// Create initial model with config
 	initialModel := model{
 		config:        cfg,
@@ -73,8 +78,8 @@ func main() {
 		editingField:  false,
 		inputBuffer:   "",
 		previousValue: 0,
-		timerDefault: cfg.Timer.DefaultTimer,
-		configPage: CFG_PAGE_1,
+		timerDefault:  defaultTimer,
+		configPage:    CFG_PAGE_1,
 	}
 
 	p := tea.NewProgram(initialModel, tea.WithAltScreen())
