@@ -4,6 +4,7 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/unquenchedservant/ChillClock/config"
 )
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -60,9 +61,11 @@ func (m model) handleClockInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if !m.timerRunning {
 			if m.timerDefault == TIMER_1 {
 				m.timerDefault = TIMER_2
-			}else if m.timerDefault == TIMER_2 {
+			} else if m.timerDefault == TIMER_2 {
 				m.timerDefault = TIMER_1
 			}
+			m.config.Timer.DefaultTimer = m.timerDefault
+			config.SaveConfig(m.config)
 		}
 	case "1":
 		return m.handleTimerToggle(TIMER_1), nil

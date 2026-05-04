@@ -73,7 +73,7 @@ func main() {
 		editingField:  false,
 		inputBuffer:   "",
 		previousValue: 0,
-		timerDefault: TIMER_1,
+		timerDefault: cfg.Timer.DefaultTimer,
 		configPage: CFG_PAGE_1,
 	}
 

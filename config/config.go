@@ -13,6 +13,7 @@ type Config struct {
 
 // TimerConfig holds timer-specific configuration
 type TimerConfig struct {
+	DefaultTimer          int `json:"default_timer"`
 	Phase1Duration_Timer1 int `json:"phase1_timer1_duration_minutes"`
 	Phase2Duration_Timer1 int `json:"phase2_timer1_duration_minutes"`
 	Phase3Duration_Timer1 int `json:"phase3_timer1_duration_minutes"`
@@ -31,6 +32,7 @@ type TimerConfig struct {
 func DefaultConfig() Config {
 	return Config{
 		Timer: TimerConfig{
+			DefaultTimer:          1,
 			Phase1Duration_Timer1: 4,
 			Phase2Duration_Timer1: 4,
 			Phase3Duration_Timer1: 2,
