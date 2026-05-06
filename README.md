@@ -8,7 +8,7 @@ Written in Go
 - [StreamController (StreamDeck) Plugin](#stream-deck-plugin)
 - [Status Bar Integrations](#status-bar-integrations)
   - [Plasma Applet (Linux/KDE)](#plasma-linuxkde)
-  - [Waybar (Linux/Hyprland)](#waybar-linux-hyprland)
+  - [Waybar (Linux/Hyprland)](#waybar-linuxhyprland)
   - [SwiftBar (MacOS)](#swiftbar-macos)
 - [Thanks](#thanks)
 - [License](#license)
