@@ -5,6 +5,7 @@ Written in Go
 
 - [Install](#install)
 - [Screenshots](#screenshots)
+- [StreamController (StreamDeck) Plugin](#stream-deck-plugin)
 - [Status Bar Integrations](#status-bar-integrations)
   - [Plasma Applet (Linux/KDE)](#plasma-linuxkde)
   - [Waybar (Linux/Hyprland)](#waybar-linux-hyprland)
@@ -22,15 +23,15 @@ go install github.com/unquenchedservant/ChillClock/cmd/cclock@latest
 Make sure to add $HOME/go/bin to your PATH
 
 ## Screenshots
-![Clock without a timer running in the center. Clock is large, green and bold. Above the clock, centered, in regular yellow text is the current date in YYYY-MM-DD format and below the clock is a small white centered text saying "Timer completed! Press Enter or Space to restart, '?' for config"](image.png)
+![Clock without a timer running in the center. Clock is large, green and bold. Above the clock, centered, in regular yellow text is the current date in YYYY-MM-DD format and below the clock is a small white centered text saying "Timer completed! Press Enter or Space to restart, '?' for config"](assets/img/image.png)
 
-![A configuration window is shown. All text is centered. The title is "Configuration" in yellow. The cursor is on "Phase 1 Duration: 4 Minutes" and it is green. The remaining options are white. The remaining options are "Phase 2 Duration: 4 Minutes", "Phase 3 Duration: 2 Minutes", "Phase 1 Temperature: 350°", "Phase 2 Temperature: 375°", "Phase 3 Temperature: 400°". A navigation help bar is below, showing up and down arrows to navigate, "Enter" to "Edit", and "Esc/q/?" to exit the configuration screen ](image-5.png)
+![A configuration window is shown. All text is centered. The title is "Configuration" in yellow. The cursor is on "Phase 1 Duration: 4 Minutes" and it is green. The remaining options are white. The remaining options are "Phase 2 Duration: 4 Minutes", "Phase 3 Duration: 2 Minutes", "Phase 1 Temperature: 350°", "Phase 2 Temperature: 375°", "Phase 3 Temperature: 400°". A navigation help bar is below, showing up and down arrows to navigate, "Enter" to "Edit", and "Esc/q/?" to exit the configuration screen ](assets/img/image-5.png)
 
-![Clock with a timer running in the center. Clock is large, green and bold. Above the clock, centered, in regular yellow text is the current date in YYYY-MM-DD format and below the clock is a small green centered text saying "Timer: 00:03 Temp: 350°"](image-1.png)
+![Clock with a timer running in the center. Clock is large, green and bold. Above the clock, centered, in regular yellow text is the current date in YYYY-MM-DD format and below the clock is a small green centered text saying "Timer: 00:03 Temp: 350°"](assets/img/image-1.png)
 
-![Clock with a timer running in the center. Clock is large, green and bold. Above the clock, centered, in regular yellow text is the current date in YYYY-MM-DD format and below the clock is a small yellow centered text saying "Timer: 04:26 Temp: 375°"](image-3.png)
+![Clock with a timer running in the center. Clock is large, green and bold. Above the clock, centered, in regular yellow text is the current date in YYYY-MM-DD format and below the clock is a small yellow centered text saying "Timer: 04:26 Temp: 375°"](assets/img/image-3.png)
 
-![Clock with a timer running in the center. Clock is large, green and bold. Above the clock, centered, in regular yellow text is the current date in YYYY-MM-DD format and below the clock is a small red centered text saying "Timer: 08:25 Temp: 400°](image-4.png)
+![Clock with a timer running in the center. Clock is large, green and bold. Above the clock, centered, in regular yellow text is the current date in YYYY-MM-DD format and below the clock is a small red centered text saying "Timer: 08:25 Temp: 400°](assets/img/image-4.png)
 
 ## Stream Deck Plugin
 Instructions for installing and using the StreamDeck Plugin [can be found here](https://github.com/unquenchedservant/ChillClockSDConnector). Requires the StreamController application, [which can be found here](https://github.com/StreamController/StreamController).
@@ -38,11 +39,11 @@ Instructions for installing and using the StreamDeck Plugin [can be found here](
 ## Status Bar Integrations
 ### Plasma (Linux/KDE)
 
-![A yellow timer is showing along with other Plasma applets in the menu bar](image-6.png)
+![A yellow timer is showing along with other Plasma applets in the menu bar](assets/img/image-6.png)
 
 Copy the cclock_connector folder from `.local/share/plasma/plasmoids/` into `~/.local/share/plasma/plasmoids` then either reboot or run `plasmashell --replace &` in a terminal. `ChillClock Connector` will then show as an applet option when editing a workspace 
 
-![ChillClock Connector showing with other Plasma applets](image-7.png)
+![ChillClock Connector showing with other Plasma applets](assets/img/image-7.png)
 
 
 Left clicking the timer will start the default timer, right clicking the timer will start the secondary timer
@@ -50,7 +51,7 @@ Left clicking the timer will start the default timer, right clicking the timer w
 
 
 ### Waybar (Linux/Hyprland)
-![A green timer is showing along with system icons in a system toolbar](image-2.png)
+![A green timer is showing along with system icons in a system toolbar](assets/img/image-2.png)
 
 To add waybar integration, add the following custom module to your waybar config
 
