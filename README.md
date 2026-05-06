@@ -32,6 +32,8 @@ Make sure to add $HOME/go/bin to your PATH
 
 ![Clock with a timer running in the center. Clock is large, green and bold. Above the clock, centered, in regular yellow text is the current date in YYYY-MM-DD format and below the clock is a small red centered text saying "Timer: 08:25 Temp: 400°](image-4.png)
 
+## Stream Deck Plugin
+Instructions for installing and using the StreamDeck Plugin [can be found here](https://github.com/unquenchedservant/ChillClockSDConnector). Requires the StreamController application, [which can be found here](https://github.com/StreamController/StreamController).
 
 ## Status Bar Integrations
 ### Plasma (Linux/KDE)
