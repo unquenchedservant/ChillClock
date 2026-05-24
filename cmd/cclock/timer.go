@@ -138,11 +138,13 @@ func (m model) getTimerDisplay() (string, lipgloss.Style) {
 
 func writeTimerState(m model) error {
 	homeDir, err := os.UserHomeDir()
+	configDir, err := os.UserConfigDir()
+
 	if err != nil {
 		return err
 	}
 
-	timerFile := filepath.Join(homeDir, "dhv_timer.txt")
+	timerFile := filepath.Join(configDir, "ChillClock", "current_timer.json")
 	var output TimerOutput
 
 	if (!m.timerRunning && m.currentPhase == phaseNotStarted) || m.currentPhase == phaseCompleted {
@@ -178,17 +180,18 @@ func writeTimerState(m model) error {
 func watchForFileClick() tea.Cmd {
 	return func() tea.Msg {
 		homeDir, err := os.UserHomeDir()
+		configDir, err := os.UserConfigDir()
 		if err != nil {
 			return nil
 		}
 
-		clickFile := filepath.Join(homeDir, "dhv_timer_click1")
+		clickFile := filepath.Join(configDir, "ChillClock", ".toggle_primary")
 		if _, err := os.Stat(clickFile); err == nil {
 			os.Remove(clickFile)
 			return fileClickMsg{}
 		}
 
-		clickFile2 := filepath.Join(homeDir, "dhv_timer_click2")
+		clickFile2 := filepath.Join(configDir, "ChillClock", "dhv_timer_click2")
 		if _, err := os.Stat(clickFile2); err == nil {
 			os.Remove(clickFile2)
 			return fileClickMsg2{}

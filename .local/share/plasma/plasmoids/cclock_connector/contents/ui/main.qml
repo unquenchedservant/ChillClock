@@ -30,9 +30,9 @@ PlasmoidItem {
       acceptedButtons: Qt.LeftButton | Qt.RightButton
       onClicked: function(mouse) {
         if (mouse.button === Qt.RightButton)
-          executable.connectSource("touch $HOME/dhv_timer_click2")
+          executable.connectSource("touch $HOME/.config/ChillClock/.toggle_secondary")
         else
-          executable.connectSource("touch $HOME/dhv_timer_click1")
+          executable.connectSource("touch $HOME/.config/ChillClock/.toggle_primary")
       }
     }
 
@@ -68,6 +68,6 @@ PlasmoidItem {
     running: true
     repeat: true
     triggeredOnStart: true
-    onTriggered: executable.connectSource("cat $HOME/dhv_timer.txt")
+    onTriggered: executable.connectSource("cat $HOME/.config/ChillClock/current_timer.json")
   }
 }
