@@ -137,7 +137,6 @@ func (m model) getTimerDisplay() (string, lipgloss.Style) {
 }
 
 func writeTimerState(m model) error {
-	homeDir, err := os.UserHomeDir()
 	configDir, err := os.UserConfigDir()
 
 	if err != nil {
@@ -179,7 +178,6 @@ func writeTimerState(m model) error {
 
 func watchForFileClick() tea.Cmd {
 	return func() tea.Msg {
-		homeDir, err := os.UserHomeDir()
 		configDir, err := os.UserConfigDir()
 		if err != nil {
 			return nil
