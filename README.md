@@ -57,11 +57,11 @@ To add waybar integration, add the following custom module to your waybar config
 
 ```
   "custom/dhv_timer": {
-    "exec": "cat ~/dhv_timer.txt",
+    "exec": "cat ~/.config/ChillClock/current_timer.json",
     "interval": 1,
     "format": "{text}  ",
     "return-type": "json",
-    "on-click": "touch ~/dhv_timer_click1"
+    "on-click": "touch ~/.config/ChillClock/.toggle_primary"
   }
 ```
 ### SwiftBar (MacOS)
@@ -77,7 +77,7 @@ Before creating the SwiftBar plugin, create a script called toggle_file.sh anywh
 
 ```sh
 #!/bin/bash
-touch ~/dhv_timer_click1
+touch ~/.config/ChillClock/.toggle_primary
 ```
 
 then make that file executable.
@@ -88,7 +88,7 @@ Once setup, run `nvim $PLUGINDIR/dhv_timer.1s.sh` (Note: the .1s. is the interva
 #!/bin/bash
 # <swiftbar.refreshrate>1s</swiftbar.refreshrate>
 
-TIMER_FILE="$HOME/dhv_timer.txt"
+TIMER_FILE="$HOME/.config/ChillClock/current_timer.json"
 TOGGLE_SCRIPT="$HOME/.config/ChillClock/toggle_timer.sh"
 
 if [ -f "$TIMER_FILE" ]; then
