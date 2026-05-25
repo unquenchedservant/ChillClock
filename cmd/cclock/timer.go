@@ -189,7 +189,7 @@ func watchForFileClick() tea.Cmd {
 			return fileClickMsg{}
 		}
 
-		clickFile2 := filepath.Join(configDir, "ChillClock", "dhv_timer_click2")
+		clickFile2 := filepath.Join(configDir, "ChillClock", ".toggle_secondary")
 		if _, err := os.Stat(clickFile2); err == nil {
 			os.Remove(clickFile2)
 			return fileClickMsg2{}
