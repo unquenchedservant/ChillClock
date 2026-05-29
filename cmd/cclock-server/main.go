@@ -33,6 +33,7 @@ func main() {
 	http.HandleFunc("/config", handleConfig(t))
 	http.HandleFunc("/status", handleStatus(t))
 	http.HandleFunc("/toggle", handleToggle(t))
+	http.HandleFunc("/switch", handleSwitch(t))
 	http.HandleFunc("/events", handleSSE((t)))
 
 	fmt.Println("ChillClock server running on 2420")
@@ -108,6 +109,13 @@ func handleStatus(t *timer.Timer) http.HandlerFunc {
 	}
 }
 
+func handleSwitch(t *timer.Timer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		t.Switch()
+		json.NewEncoder(w).Encode(t.State())
+	}
+}
 func handleToggle(t *timer.Timer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
