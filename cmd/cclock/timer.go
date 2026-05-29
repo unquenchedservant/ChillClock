@@ -86,9 +86,10 @@ func switchTimerCmd(serverURL string) tea.Cmd {
 }
 func (m model) getTimerDisplay() (string, lipgloss.Style) {
 	var duration int
-	if m.timer == TIMER_1 {
+	switch m.timer {
+	case TIMER_1:
 		duration = m.serverConfig.Timer.Phase1Duration_Timer1 + m.serverConfig.Timer.Phase2Duration_Timer1 + m.serverConfig.Timer.Phase3Duration_Timer1
-	} else if m.timer == TIMER_2 {
+	case TIMER_2:
 		duration = m.serverConfig.Timer.Phase1Duration_Timer2 + m.serverConfig.Timer.Phase2Duration_Timer2 + m.serverConfig.Timer.Phase3Duration_Timer2
 	}
 	if (!m.timerRunning && m.currentPhase == phaseNotStarted) || m.currentPhase == phaseCompleted {

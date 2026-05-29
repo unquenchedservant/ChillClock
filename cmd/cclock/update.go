@@ -42,9 +42,10 @@ func (m model) handleClockInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.handleTimerSwitch()
 	case "d":
 		if !m.timerRunning {
-			if m.timerDefault == TIMER_1 {
+			switch m.timerDefault {
+			case TIMER_1:
 				m.timerDefault = TIMER_2
-			} else if m.timerDefault == TIMER_2 {
+			case TIMER_2:
 				m.timerDefault = TIMER_1
 			}
 			m.config.DefaultTimer = m.timerDefault
