@@ -65,6 +65,19 @@ func (t *Timer) Toggle(which int) {
 	}
 }
 
+func (t *Timer) Switch() {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if t.running {
+		switch t.activeTimer {
+		case 1:
+			t.activeTimer = 2
+		case 2:
+			t.activeTimer = 1
+		}
+	}
+}
+
 func (t *Timer) GetConfig() config.Config {
 	t.mu.Lock()
 	defer t.mu.Unlock()
