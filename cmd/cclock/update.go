@@ -28,7 +28,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) handleClockInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
-	case "ctrl+c", "q", "esc":
+	case "ctrl+c", "q":
 		return m, tea.Quit
 	case "?":
 		if !m.timerRunning {
@@ -40,6 +40,10 @@ func (m model) handleClockInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 	case "r":
 		return m.handleTimerSwitch()
+	case "esc":
+		if m.timerRunning {
+			return m.handleTimerToggle(TIMER_1)
+		}
 	case "d":
 		if !m.timerRunning {
 			switch m.timerDefault {
