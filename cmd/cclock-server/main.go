@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -12,6 +14,44 @@ import (
 )
 
 func main() {
+	getKey := flag.Bool("get-key", false, "Display the current API Key (generates one if none exists)")
+	newKey := flag.Bool("new-key", false, "Generate and display a new API key")
+	flag.Parse()
+
+	if *newKey {
+		key, err := config.GenerateAPIKey()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to generate key:", err)
+			os.Exit(1)
+		}
+		if err := config.SaveAPIKey(key); err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to save key:", err)
+			os.Exit(1)
+		}
+		fmt.Println(key)
+		return
+	}
+
+	if *getKey {
+		key, err := config.LoadAPIKey()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to load key:", err)
+			os.Exit(1)
+		}
+		if key == "" {
+			key, err = config.GenerateAPIKey()
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "Failed to generate key:", err)
+				os.Exit(1)
+			}
+			if err := config.SaveAPIKey(key); err != nil {
+				fmt.Fprintln(os.Stderr, "Failed to save key:", err)
+				os.Exit(1)
+			}
+		}
+		fmt.Println(key)
+		return
+	}
 	if err := config.EnsureConfigExists(); err != nil {
 		panic(err)
 	}
@@ -21,6 +61,13 @@ func main() {
 		panic(err)
 	}
 
+	apiKey, err := config.LoadAPIKey()
+	if err != nil {
+		panic(err)
+	}
+	if apiKey == "" {
+		fmt.Println("Warning: No API key set. Run --get-key to enable auth.")
+	}
 	t := timer.New(cfg)
 
 	go func() {
@@ -30,11 +77,19 @@ func main() {
 			t.Tick()
 		}
 	}()
-	http.HandleFunc("/config", handleConfig(t))
-	http.HandleFunc("/status", handleStatus(t))
-	http.HandleFunc("/toggle", handleToggle(t))
-	http.HandleFunc("/switch", handleSwitch(t))
-	http.HandleFunc("/events", handleSSE((t)))
+
+	wrap := func(h http.HandlerFunc) http.HandlerFunc {
+		if apiKey == "" {
+			return h
+		}
+		return requireAPIKey(apiKey, h)
+	}
+
+	http.HandleFunc("/config", wrap(handleConfig(t)))
+	http.HandleFunc("/status", wrap(handleStatus(t)))
+	http.HandleFunc("/toggle", wrap(handleToggle(t)))
+	http.HandleFunc("/switch", wrap(handleSwitch(t)))
+	http.HandleFunc("/events", wrap(handleSSE((t))))
 
 	fmt.Println("ChillClock server running on 2420")
 	http.ListenAndServe(":2420", nil)
@@ -147,5 +202,15 @@ func handleSSE(t *timer.Timer) http.HandlerFunc {
 			fmt.Fprintf(w, "data: %s\n\n", data)
 			w.(http.Flusher).Flush()
 		}
+	}
+}
+
+func requireAPIKey(apiKey string, next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("X-API-KEY") != apiKey {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		next(w, r)
 	}
 }
