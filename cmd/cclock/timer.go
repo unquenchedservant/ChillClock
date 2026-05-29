@@ -68,6 +68,22 @@ func toggleServerCmd(serverURL string, timer int) tea.Cmd {
 		return msg
 	}
 }
+
+func switchTimerCmd(serverURL string) tea.Cmd {
+	return func() tea.Msg {
+		resp, err := http.Post(
+			fmt.Sprintf("%s/switch", serverURL), "application/json", nil,
+		)
+		if err != nil {
+			return serverStateMsg{}
+		}
+
+		defer resp.Body.Close()
+		var msg serverStateMsg
+		json.NewDecoder(resp.Body).Decode(&msg)
+		return msg
+	}
+}
 func (m model) getTimerDisplay() (string, lipgloss.Style) {
 	var duration int
 	if m.timer == TIMER_1 {
