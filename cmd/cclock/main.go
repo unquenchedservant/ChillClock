@@ -27,6 +27,7 @@ type model struct {
 	config        config.TuiConfig
 	serverConfig  config.Config
 	serverURL     string
+	apiKey        string
 	timerRunning  bool
 	timerElapsed  time.Duration
 	currentPhase  timerPhase
@@ -50,7 +51,7 @@ const (
 )
 
 func (m model) Init() tea.Cmd {
-	return tea.Batch(pollServerCmd(m.serverURL), fetchConfigCmd(m.serverURL), tea.EnterAltScreen)
+	return tea.Batch(pollServerCmd(m.serverURL, m.apiKey), fetchConfigCmd(m.serverURL, m.apiKey), tea.EnterAltScreen)
 }
 
 func main() {
@@ -71,11 +72,13 @@ func main() {
 	}
 	serverURL := cfg.ServerURL
 
+	apiKey, _ := config.LoadAPIKey()
 	// Create initial model with config
 	initialModel := model{
 		config:        cfg,
 		currentPhase:  phaseNotStarted,
 		serverURL:     serverURL,
+		apiKey:        apiKey,
 		mode:          viewClock,
 		selectedField: fieldPhase1DurationT1,
 		editingField:  false,
