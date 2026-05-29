@@ -1,133 +1,109 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
+	"net/http"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/unquenchedservant/ChillClock/config"
 	util "github.com/unquenchedservant/ChillClock/utilities"
 )
 
-func (m model) handleTick() (tea.Model, tea.Cmd) {
-	if m.timerRunning {
-		m.timerElapsed = time.Since(m.timerStart)
-		phase1Dur := time.Duration(0)
-		phase2Dur := time.Duration(0)
-		phase3Dur := time.Duration(0)
-		if m.timer == TIMER_1 {
-			phase1Dur = time.Duration(m.config.Timer.Phase1Duration_Timer1) * time.Minute
-			phase2Dur = time.Duration(m.config.Timer.Phase2Duration_Timer1) * time.Minute
-			phase3Dur = time.Duration(m.config.Timer.Phase3Duration_Timer1) * time.Minute
-		}else if m.timer == TIMER_2 {
-			phase1Dur = time.Duration(m.config.Timer.Phase1Duration_Timer2) * time.Minute
-			phase2Dur = time.Duration(m.config.Timer.Phase2Duration_Timer2) * time.Minute
-			phase3Dur = time.Duration(m.config.Timer.Phase3Duration_Timer2) * time.Minute
-		}
-		totalDur := phase1Dur + phase2Dur + phase3Dur
-
-		oldPhase := m.currentPhase
-		if m.timerElapsed >= totalDur {
-			m.currentPhase = phaseCompleted
-			m.timerRunning = false
-		} else if m.timerElapsed >= phase1Dur+phase2Dur {
-			m.currentPhase = phase3
-		} else if m.timerElapsed >= phase1Dur {
-			m.currentPhase = phase2
-		} else {
-			m.currentPhase = phase1
-		}
-
-		writeTimerState(m)
-
-		if oldPhase != m.currentPhase && m.currentPhase != phaseNotStarted {
-			var temp int
-			switch m.currentPhase {
-			case phase1:
-				if m.timer == TIMER_1{
-					temp = m.config.Timer.Phase1Temp_Timer1
-				}else if m.timer == TIMER_2 {
-					temp = m.config.Timer.Phase1Temp_Timer2
-				}
-			case phase2:
-				if m.timer == TIMER_1 {
-					temp = m.config.Timer.Phase2Temp_Timer1
-				}else if m.timer == TIMER_2 {
-					temp = m.config.Timer.Phase2Temp_Timer2
-				}
-			case phase3:
-				if m.timer == TIMER_1 {
-					temp = m.config.Timer.Phase3Temp_Timer1
-				}else if m.timer == TIMER_2 {
-					temp = m.config.Timer.Phase3Temp_Timer2
-				}
-			case phaseCompleted:
-				temp = 0
-			}
-			return m, tea.Batch(tickCmd(), dingCmd(m.currentPhase, temp))
-		}
-	} else {
-		writeTimerState(m)
-	}
-	return m, tea.Batch(tickCmd(), watchForFileClick())
+type serverStateMsg struct {
+	Text         string `json:"text"`
+	Class        string `json:"class"`
+	Phase        int    `json:"phase"`
+	Running      bool   `json:"running"`
+	RemainingInt int64  `json:"remainingInt"`
+	Elapsed      int64  `json:"elapsed"`
+	ActiveTimer  int    `json:"activeTimer"`
+	Temp         int    `json:"temp"`
 }
 
-func (m model) getTimerDisplay() (string, lipgloss.Style) {
+func pollServerCmd(serverUrl string) tea.Cmd {
+	return func() tea.Msg {
+		time.Sleep(100 * time.Millisecond)
+		resp, err := http.Get(serverUrl + "/status")
+		if err != nil {
+			return serverStateMsg{}
+		}
+		defer resp.Body.Close()
+		var msg serverStateMsg
+		if err := json.NewDecoder(resp.Body).Decode(&msg); err != nil {
+			return serverStateMsg{}
+		}
+		return msg
+	}
+}
 
+func (m model) handleServerState(msg serverStateMsg) (tea.Model, tea.Cmd) {
+	oldPhase := m.currentPhase
+	m.timerRunning = msg.Running
+	m.timerElapsed = time.Duration(msg.Elapsed) * time.Millisecond
+	m.currentPhase = timerPhase(msg.Phase)
+	m.timer = msg.ActiveTimer
+	m.temp = msg.Temp
+
+	if oldPhase != m.currentPhase && m.currentPhase != phaseNotStarted && m.timerRunning {
+		return m, tea.Batch(pollServerCmd(m.serverURL), dingCmd(m.currentPhase, m.temp))
+	}
+	return m, pollServerCmd(m.serverURL)
+}
+
+func toggleServerCmd(serverURL string, timer int) tea.Cmd {
+	return func() tea.Msg {
+		resp, err := http.Post(
+			fmt.Sprintf("%s/toggle?timer=%d", serverURL, timer), "application/json", nil,
+		)
+		if err != nil {
+			return serverStateMsg{}
+		}
+		defer resp.Body.Close()
+		var msg serverStateMsg
+		json.NewDecoder(resp.Body).Decode(&msg)
+		return msg
+	}
+}
+func (m model) getTimerDisplay() (string, lipgloss.Style) {
+	var duration int
+	if m.timer == TIMER_1 {
+		duration = m.serverConfig.Timer.Phase1Duration_Timer1 + m.serverConfig.Timer.Phase2Duration_Timer1 + m.serverConfig.Timer.Phase3Duration_Timer1
+	} else if m.timer == TIMER_2 {
+		duration = m.serverConfig.Timer.Phase1Duration_Timer2 + m.serverConfig.Timer.Phase2Duration_Timer2 + m.serverConfig.Timer.Phase3Duration_Timer2
+	}
 	if (!m.timerRunning && m.currentPhase == phaseNotStarted) || m.currentPhase == phaseCompleted {
 		currentDefault := ""
-		if m.timerDefault == TIMER_1{
-			duration := m.config.Timer.Phase1Duration_Timer1 + m.config.Timer.Phase2Duration_Timer1 + m.config.Timer.Phase3Duration_Timer1
+		if m.timerDefault == TIMER_1 {
+			duration := m.serverConfig.Timer.Phase1Duration_Timer1 + m.serverConfig.Timer.Phase2Duration_Timer1 + m.serverConfig.Timer.Phase3Duration_Timer1
 			currentDefault = fmt.Sprintf("Timer 1 (%dm)", duration)
 		}
-		if m.timerDefault == TIMER_2{
-			duration := m.config.Timer.Phase1Duration_Timer2 + m.config.Timer.Phase2Duration_Timer2 + m.config.Timer.Phase3Duration_Timer2
+		if m.timerDefault == TIMER_2 {
+			duration := m.serverConfig.Timer.Phase1Duration_Timer2 + m.serverConfig.Timer.Phase2Duration_Timer2 + m.serverConfig.Timer.Phase3Duration_Timer2
 			currentDefault = fmt.Sprintf("Timer 2 (%dm)", duration)
 		}
 		line1 := util.CenterText("Press Enter or Space to start default timer, '?' for config", m.width)
 		line2 := util.CenterText("'1|2' to start respective timer", m.width)
-		line3 := util.CenterText("(d)efault timer: " + currentDefault, m.width)
+		line3 := util.CenterText("(d)efault timer: "+currentDefault, m.width)
 		return line1 + "\n" + line2 + "\n" + line3, util.GetNormalStyle()
 	}
 
 	elapsed := m.timerElapsed
 	minutes := int(elapsed.Minutes())
 	seconds := int(elapsed.Seconds()) % 60
-	duration := 0
-	if m.timer == TIMER_1 {
-		duration = m.config.Timer.Phase1Duration_Timer1 + m.config.Timer.Phase2Duration_Timer1 + m.config.Timer.Phase3Duration_Timer1
-	}else if m.timer == TIMER_2 {
-		duration = m.config.Timer.Phase1Duration_Timer2 + m.config.Timer.Phase2Duration_Timer2 + m.config.Timer.Phase3Duration_Timer2
-	}
-	timerText := fmt.Sprintf("Timer: %d:%02d (%d:00)", minutes, seconds, duration)
-
+	timerText := fmt.Sprintf("Timer: %d:%02d (%dm)", minutes, seconds, duration)
+	var temp = m.temp
 	var style lipgloss.Style
-	var temp int
 	switch m.currentPhase {
 	case phase1:
 		style = util.GetGreenStyle()
-		if m.timer == TIMER_1 {
-			temp = m.config.Timer.Phase1Temp_Timer1
-		}else if m.timer == TIMER_2{
-			temp = m.config.Timer.Phase1Temp_Timer2
-		}
 	case phase2:
 		style = util.GetYellowStyle()
-		if m.timer == TIMER_1{
-			temp = m.config.Timer.Phase2Temp_Timer1
-		}else if m.timer == TIMER_2{
-			temp = m.config.Timer.Phase2Temp_Timer2
-		}
 	case phase3:
 		style = util.GetRedStyle()
-		if m.timer == TIMER_1{
-			temp = m.config.Timer.Phase3Temp_Timer1
-		}else if m.timer == TIMER_2{
-			temp = m.config.Timer.Phase3Temp_Timer2
-		}
 	default:
 		style = util.GetNormalStyle()
 	}
@@ -136,64 +112,60 @@ func (m model) getTimerDisplay() (string, lipgloss.Style) {
 	return line, style
 }
 
-func writeTimerState(m model) error {
-	configDir, err := os.UserConfigDir()
-
-	if err != nil {
-		return err
-	}
-
-	timerFile := filepath.Join(configDir, "ChillClock", "current_timer.json")
-	var output TimerOutput
-
-	if (!m.timerRunning && m.currentPhase == phaseNotStarted) || m.currentPhase == phaseCompleted {
-		output = TimerOutput{Text: "0:00", Class: "white"}
-	} else {
-		minutes := int(m.timerElapsed.Minutes())
-		seconds := int(m.timerElapsed.Seconds()) % 60
-		timerText := fmt.Sprintf("%d:%02d", minutes, seconds)
-
-		var class string
-		switch m.currentPhase {
-		case phase1:
-			class = "green"
-		case phase2:
-			class = "yellow"
-		case phase3:
-			class = "red"
-		default:
-			class = "white"
+func fetchConfigCmd(serverURL string) tea.Cmd {
+	return func() tea.Msg {
+		resp, err := http.Get(serverURL + "/config")
+		if err != nil {
+			return configLoadedMsg{}
 		}
-
-		output = TimerOutput{Text: timerText, Class: class}
+		defer resp.Body.Close()
+		var cfg config.Config
+		json.NewDecoder(resp.Body).Decode(&cfg)
+		return configLoadedMsg{cfg: cfg}
 	}
-
-	data, err := json.Marshal(output)
-	if err != nil {
-		return err
-	}
-
-	return os.WriteFile(timerFile, data, 0644)
 }
 
-func watchForFileClick() tea.Cmd {
+func patchConfigCmd(serverURL string, key string, val int) tea.Cmd {
 	return func() tea.Msg {
-		configDir, err := os.UserConfigDir()
+		body, _ := json.Marshal(map[string]int{key: val})
+		req, _ := http.NewRequest(http.MethodPatch, serverURL+"/config", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return nil
 		}
-
-		clickFile := filepath.Join(configDir, "ChillClock", ".toggle_primary")
-		if _, err := os.Stat(clickFile); err == nil {
-			os.Remove(clickFile)
-			return fileClickMsg{}
-		}
-
-		clickFile2 := filepath.Join(configDir, "ChillClock", ".toggle_secondary")
-		if _, err := os.Stat(clickFile2); err == nil {
-			os.Remove(clickFile2)
-			return fileClickMsg2{}
-		}
-		return nil
+		defer resp.Body.Close()
+		var cfg config.Config
+		json.NewDecoder(resp.Body).Decode(&cfg)
+		return configLoadedMsg{cfg: cfg}
 	}
+}
+func fieldToJSONKey(field configField) string {
+	switch field {
+	case fieldPhase1DurationT1:
+		return "phase1_timer1_duration_minutes"
+	case fieldPhase2DurationT1:
+		return "phase2_timer1_duration_minutes"
+	case fieldPhase3DurationT1:
+		return "phase3_timer1_duration_minutes"
+	case fieldPhase1TempT1:
+		return "phase1_timer1_temp"
+	case fieldPhase2TempT1:
+		return "phase2_timer1_temp"
+	case fieldPhase3TempT1:
+		return "phase3_timer1_temp"
+	case fieldPhase1DurationT2:
+		return "phase1_timer2_duration_minutes"
+	case fieldPhase2DurationT2:
+		return "phase2_timer2_duration_minutes"
+	case fieldPhase3DurationT2:
+		return "phase3_timer2_duration_minutes"
+	case fieldPhase1TempT2:
+		return "phase1_timer2_temp"
+	case fieldPhase2TempT2:
+		return "phase2_timer2_temp"
+	case fieldPhase3TempT2:
+		return "phase3_timer2_temp"
+	}
+	return ""
 }

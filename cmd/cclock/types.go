@@ -1,13 +1,16 @@
 package main
 
 import (
-	"time"
-
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/unquenchedservant/ChillClock/config"
 	util "github.com/unquenchedservant/ChillClock/utilities"
 )
 
 type timerPhase int
+
+type configLoadedMsg struct {
+	cfg config.Config
+}
 
 const (
 	phaseNotStarted timerPhase = iota
@@ -42,20 +45,11 @@ const (
 	fieldMax
 )
 
-type tickMsg time.Time
 type dingMsg struct{}
-type fileClickMsg struct{}
-type fileClickMsg2 struct{}
 
 type TimerOutput struct {
 	Text  string `json:"text"`
 	Class string `json:"class"`
-}
-
-func tickCmd() tea.Cmd {
-	return tea.Tick(time.Second / 10, func(t time.Time) tea.Msg {
-		return tickMsg(t)
-	})
 }
 
 func dingCmd(phase timerPhase, temp int) tea.Cmd {

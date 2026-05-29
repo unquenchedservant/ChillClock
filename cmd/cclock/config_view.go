@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/unquenchedservant/ChillClock/config"
 	util "github.com/unquenchedservant/ChillClock/utilities"
 )
 
@@ -13,19 +12,26 @@ func (m model) handleConfigInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	if m.editingField {
 		switch msg.String() {
 		case "enter", "esc":
-			if m.inputBuffer == ""{
+			if m.inputBuffer == "" {
 				m.setFieldValue(m.previousValue)
+				m.editingField = false
+				m.inputBuffer = ""
+				return m, nil
 			} else if val := m.parseInput(); val >= 0 {
 				m.setFieldValue(val)
-				config.SaveConfig(m.config)
+				m.editingField = false
+				key := fieldToJSONKey(m.selectedField)
+				m.inputBuffer = ""
+				return m, patchConfigCmd(m.serverURL, key, val)
 			} else {
 				m.setFieldValue(m.previousValue)
+				m.editingField = false
+				m.inputBuffer = ""
+				return m, nil
 			}
-			m.editingField = false
-			m.inputBuffer = ""
-		case "backspace": 
+		case "backspace":
 			if len(m.inputBuffer) > 0 {
-				m.inputBuffer = m.inputBuffer[:len(m.inputBuffer) - 1]
+				m.inputBuffer = m.inputBuffer[:len(m.inputBuffer)-1]
 			}
 		case "up", "k":
 			m.saveAndExitField()
@@ -52,7 +58,7 @@ func (m model) handleConfigInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 	} else {
 		switch msg.String() {
-		case "esc", "q", "?": 
+		case "esc", "q", "?":
 			m.mode = viewClock
 		case "up", "k":
 			minField := fieldPhase1DurationT1
@@ -94,7 +100,6 @@ func (m *model) saveAndExitField() {
 		m.setFieldValue(m.previousValue)
 	} else if val := m.parseInput(); val >= 0 {
 		m.setFieldValue(val)
-		config.SaveConfig(m.config)
 	} else {
 		m.setFieldValue(m.previousValue)
 	}
@@ -105,29 +110,29 @@ func (m *model) saveAndExitField() {
 func (m model) getFieldValue() int {
 	switch m.selectedField {
 	case fieldPhase1DurationT1:
-		return m.config.Timer.Phase1Duration_Timer1
+		return m.serverConfig.Timer.Phase1Duration_Timer1
 	case fieldPhase2DurationT1:
-		return m.config.Timer.Phase2Duration_Timer1
+		return m.serverConfig.Timer.Phase2Duration_Timer1
 	case fieldPhase3DurationT1:
-		return m.config.Timer.Phase3Duration_Timer1
+		return m.serverConfig.Timer.Phase3Duration_Timer1
 	case fieldPhase1TempT1:
-		return m.config.Timer.Phase1Temp_Timer1
+		return m.serverConfig.Timer.Phase1Temp_Timer1
 	case fieldPhase2TempT1:
-		return m.config.Timer.Phase2Temp_Timer1
+		return m.serverConfig.Timer.Phase2Temp_Timer1
 	case fieldPhase3TempT1:
-		return m.config.Timer.Phase3Temp_Timer1
+		return m.serverConfig.Timer.Phase3Temp_Timer1
 	case fieldPhase1DurationT2:
-		return m.config.Timer.Phase1Duration_Timer2
+		return m.serverConfig.Timer.Phase1Duration_Timer2
 	case fieldPhase2DurationT2:
-		return m.config.Timer.Phase2Duration_Timer2
+		return m.serverConfig.Timer.Phase2Duration_Timer2
 	case fieldPhase3DurationT2:
-		return m.config.Timer.Phase3Duration_Timer2
+		return m.serverConfig.Timer.Phase3Duration_Timer2
 	case fieldPhase1TempT2:
-		return m.config.Timer.Phase1Temp_Timer2
+		return m.serverConfig.Timer.Phase1Temp_Timer2
 	case fieldPhase2TempT2:
-		return m.config.Timer.Phase2Temp_Timer2
+		return m.serverConfig.Timer.Phase2Temp_Timer2
 	case fieldPhase3TempT2:
-		return m.config.Timer.Phase3Temp_Timer2
+		return m.serverConfig.Timer.Phase3Temp_Timer2
 	}
 	return 0
 }
@@ -135,29 +140,29 @@ func (m model) getFieldValue() int {
 func (m *model) setFieldValue(val int) {
 	switch m.selectedField {
 	case fieldPhase1DurationT1:
-		m.config.Timer.Phase1Duration_Timer1 = val
+		m.serverConfig.Timer.Phase1Duration_Timer1 = val
 	case fieldPhase2DurationT1:
-		m.config.Timer.Phase2Duration_Timer1 = val
+		m.serverConfig.Timer.Phase2Duration_Timer1 = val
 	case fieldPhase3DurationT1:
-		m.config.Timer.Phase3Duration_Timer1 = val
+		m.serverConfig.Timer.Phase3Duration_Timer1 = val
 	case fieldPhase1TempT1:
-		m.config.Timer.Phase1Temp_Timer1 = val
+		m.serverConfig.Timer.Phase1Temp_Timer1 = val
 	case fieldPhase2TempT1:
-		m.config.Timer.Phase2Temp_Timer1 = val
+		m.serverConfig.Timer.Phase2Temp_Timer1 = val
 	case fieldPhase3TempT1:
-		m.config.Timer.Phase3Temp_Timer1 = val
+		m.serverConfig.Timer.Phase3Temp_Timer1 = val
 	case fieldPhase1DurationT2:
-		m.config.Timer.Phase1Duration_Timer2 = val
+		m.serverConfig.Timer.Phase1Duration_Timer2 = val
 	case fieldPhase2DurationT2:
-		m.config.Timer.Phase2Duration_Timer2 = val
+		m.serverConfig.Timer.Phase2Duration_Timer2 = val
 	case fieldPhase3DurationT2:
-		m.config.Timer.Phase3Duration_Timer2 = val
+		m.serverConfig.Timer.Phase3Duration_Timer2 = val
 	case fieldPhase1TempT2:
-		m.config.Timer.Phase1Temp_Timer2 = val
+		m.serverConfig.Timer.Phase1Temp_Timer2 = val
 	case fieldPhase2TempT2:
-		m.config.Timer.Phase2Temp_Timer2 = val
+		m.serverConfig.Timer.Phase2Temp_Timer2 = val
 	case fieldPhase3TempT2:
-		m.config.Timer.Phase3Temp_Timer2 = val
+		m.serverConfig.Timer.Phase3Temp_Timer2 = val
 	}
 }
 
@@ -172,9 +177,9 @@ func (m model) parseInput() int {
 func (m model) renderConfigView() string {
 	var output strings.Builder
 	fields := []struct {
-		name string 
+		name  string
 		field configField
-		unit string
+		unit  string
 	}{}
 	minField := fieldPhase1DurationT1
 	maxField := fieldPhase3TempT1
@@ -187,9 +192,9 @@ func (m model) renderConfigView() string {
 	output.WriteString("\n\n")
 	if m.configPage == CFG_PAGE_1 {
 		fields = []struct {
-			name string
+			name  string
 			field configField
-			unit string
+			unit  string
 		}{
 			{"Phase 1 Duration", fieldPhase1DurationT1, " minutes"},
 			{"Phase 2 Duration", fieldPhase2DurationT1, " minutes"},
@@ -200,9 +205,9 @@ func (m model) renderConfigView() string {
 		}
 	} else {
 		fields = []struct {
-			name string
+			name  string
 			field configField
-			unit string
+			unit  string
 		}{
 			{"Phase 1 Duration", fieldPhase1DurationT2, " minutes"},
 			{"Phase 2 Duration", fieldPhase2DurationT2, " minutes"},
@@ -226,34 +231,34 @@ func (m model) renderConfigView() string {
 				line = util.GetEditingStyle().Render(line)
 			} else {
 				line = fmt.Sprintf("  ▶ %s: %d%s", f.name, value, f.unit)
-                line = util.GetGreenStyle().Bold(true).Render(line)
+				line = util.GetGreenStyle().Bold(true).Render(line)
 			}
 		} else {
-			switch f.field{
+			switch f.field {
 			case fieldPhase1DurationT1:
-				value = m.config.Timer.Phase1Duration_Timer1
+				value = m.serverConfig.Timer.Phase1Duration_Timer1
 			case fieldPhase2DurationT1:
-				value = m.config.Timer.Phase2Duration_Timer1
+				value = m.serverConfig.Timer.Phase2Duration_Timer1
 			case fieldPhase3DurationT1:
-				value = m.config.Timer.Phase3Duration_Timer1
+				value = m.serverConfig.Timer.Phase3Duration_Timer1
 			case fieldPhase1TempT1:
-				value = m.config.Timer.Phase1Temp_Timer1
+				value = m.serverConfig.Timer.Phase1Temp_Timer1
 			case fieldPhase2TempT1:
-				value = m.config.Timer.Phase2Temp_Timer1
+				value = m.serverConfig.Timer.Phase2Temp_Timer1
 			case fieldPhase3TempT1:
-				value = m.config.Timer.Phase3Temp_Timer1
+				value = m.serverConfig.Timer.Phase3Temp_Timer1
 			case fieldPhase1DurationT2:
-				value = m.config.Timer.Phase1Duration_Timer2
+				value = m.serverConfig.Timer.Phase1Duration_Timer2
 			case fieldPhase2DurationT2:
-				value = m.config.Timer.Phase2Duration_Timer2
+				value = m.serverConfig.Timer.Phase2Duration_Timer2
 			case fieldPhase3DurationT2:
-				value = m.config.Timer.Phase3Duration_Timer2
+				value = m.serverConfig.Timer.Phase3Duration_Timer2
 			case fieldPhase1TempT2:
-				value = m.config.Timer.Phase1Temp_Timer2
+				value = m.serverConfig.Timer.Phase1Temp_Timer2
 			case fieldPhase2TempT2:
-				value = m.config.Timer.Phase2Temp_Timer2
+				value = m.serverConfig.Timer.Phase2Temp_Timer2
 			case fieldPhase3TempT2:
-				value = m.config.Timer.Phase3Temp_Timer2
+				value = m.serverConfig.Timer.Phase3Temp_Timer2
 			}
 			line = fmt.Sprintf("    %s: %d%s", f.name, value, f.unit)
 			line = util.GetNormalStyle().Render(line)
@@ -268,21 +273,21 @@ func (m model) renderConfigView() string {
 	up_down := ""
 	if m.configPage == CFG_PAGE_1 {
 		navigate_page = "→: Next Timer | "
-	}else if m.configPage == CFG_PAGE_2 {
+	} else if m.configPage == CFG_PAGE_2 {
 		navigate_page = "←: Prv. Timer | "
 	}
 	if m.selectedField == minField {
 		up_down = "↓: Navigate | "
-	}else if m.selectedField == maxField {
-		up_down ="↑: Navigate | "
-	}else {
+	} else if m.selectedField == maxField {
+		up_down = "↑: Navigate | "
+	} else {
 		up_down = "↑/↓: Navigate | "
 	}
 	helpText := fmt.Sprintf("%s%sEnter: Edit | Esc/q/?: Exit", navigate_page, up_down)
-    if m.editingField {
-        helpText = "Type value | Enter: Save | Esc: Cancel"
-    }
-	
+	if m.editingField {
+		helpText = "Type value | Enter: Save | Esc: Cancel"
+	}
+
 	output.WriteString(util.CenterText(util.GetNormalStyle().Render(helpText), m.width))
 	output.WriteString("\n")
 	versionText := version
