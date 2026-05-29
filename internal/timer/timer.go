@@ -165,6 +165,10 @@ func (t *Timer) State() State {
 		class = "white"
 	}
 
+	if !t.running {
+		class = "white"
+	}
+
 	var temp int
 	if t.activeTimer == 1 {
 		switch t.currentPhase {
