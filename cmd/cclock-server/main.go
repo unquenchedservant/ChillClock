@@ -14,8 +14,11 @@ import (
 )
 
 func main() {
+	ssl := false
 	getKey := flag.Bool("get-key", false, "Display the current API Key (generates one if none exists)")
 	newKey := flag.Bool("new-key", false, "Generate and display a new API key")
+	certFile := flag.String("cert", "", "Path to TLS Cert (Required w/ --key for https)")
+	keyFile := flag.String("key", "", "Path to TLS Key File (Required w/ --cert for https)")
 	flag.Parse()
 
 	if *newKey {
@@ -52,6 +55,23 @@ func main() {
 		fmt.Println(key)
 		return
 	}
+
+	if *certFile != "" || *keyFile != "" {
+		if *certFile == "" || *keyFile == "" {
+			fmt.Fprintln(os.Stderr, "both -cert and -key must be provided together")
+			os.Exit(1)
+		}
+		if _, err := os.Stat(*certFile); err != nil {
+			fmt.Fprintf(os.Stderr, "cert file not found: %s\n", *certFile)
+			os.Exit(1)
+		}
+		if _, err := os.Stat(*keyFile); err != nil {
+			fmt.Fprintf(os.Stderr, "key file not found: %s\n", *keyFile)
+			os.Exit(1)
+		}
+		ssl = true
+	}
+
 	if err := config.EnsureConfigExists(); err != nil {
 		panic(err)
 	}
@@ -92,7 +112,11 @@ func main() {
 	http.HandleFunc("/events", wrap(handleSSE((t))))
 
 	fmt.Println("ChillClock server running on 2420")
-	http.ListenAndServe(":2420", nil)
+	if ssl {
+		http.ListenAndServeTLS(":2420", *certFile, *keyFile, nil)
+	} else {
+		http.ListenAndServe(":2420", nil)
+	}
 }
 
 func handleConfig(t *timer.Timer) http.HandlerFunc {
