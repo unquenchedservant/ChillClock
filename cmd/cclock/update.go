@@ -36,7 +36,7 @@ func (m model) handleClockInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.selectedField = fieldPhase1DurationT1
 			m.editingField = false
 			m.inputBuffer = ""
-			return m, fetchConfigCmd(m.serverURL)
+			return m, fetchConfigCmd(m.serverURL, m.apiKey)
 		}
 	case "r":
 		return m.handleTimerSwitch()
@@ -66,9 +66,9 @@ func (m model) handleClockInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) handleTimerSwitch() (tea.Model, tea.Cmd) {
-	return m, switchTimerCmd(m.serverURL)
+	return m, switchTimerCmd(m.serverURL, m.apiKey)
 }
 
 func (m model) handleTimerToggle(timer int) (tea.Model, tea.Cmd) {
-	return m, toggleServerCmd(m.serverURL, timer)
+	return m, toggleServerCmd(m.serverURL, timer, m.apiKey)
 }

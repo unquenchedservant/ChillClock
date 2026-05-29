@@ -22,7 +22,7 @@ func (m model) handleConfigInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 				m.editingField = false
 				key := fieldToJSONKey(m.selectedField)
 				m.inputBuffer = ""
-				return m, patchConfigCmd(m.serverURL, key, val)
+				return m, patchConfigCmd(m.serverURL, key, val, m.apiKey)
 			} else {
 				m.setFieldValue(m.previousValue)
 				m.editingField = false
