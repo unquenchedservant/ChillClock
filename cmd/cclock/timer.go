@@ -24,10 +24,13 @@ type serverStateMsg struct {
 	Temp         int    `json:"temp"`
 }
 
-func pollServerCmd(serverUrl string) tea.Cmd {
+func pollServerCmd(serverUrl string, apiKey string) tea.Cmd {
 	return func() tea.Msg {
 		time.Sleep(100 * time.Millisecond)
-		resp, err := http.Get(serverUrl + "/status")
+		req, _ := http.NewRequest(http.MethodGet, serverUrl+"/status", nil)
+		req.Header.Set("X-API-KEY", apiKey)
+		resp, err := http.DefaultClient.Do(req)
+
 		if err != nil {
 			return serverStateMsg{}
 		}
@@ -49,16 +52,16 @@ func (m model) handleServerState(msg serverStateMsg) (tea.Model, tea.Cmd) {
 	m.temp = msg.Temp
 
 	if oldPhase != m.currentPhase && m.currentPhase != phaseNotStarted && m.timerRunning {
-		return m, tea.Batch(pollServerCmd(m.serverURL), dingCmd(m.currentPhase, m.temp))
+		return m, tea.Batch(pollServerCmd(m.serverURL, m.apiKey), dingCmd(m.currentPhase, m.temp))
 	}
-	return m, pollServerCmd(m.serverURL)
+	return m, pollServerCmd(m.serverURL, m.apiKey)
 }
 
-func toggleServerCmd(serverURL string, timer int) tea.Cmd {
+func toggleServerCmd(serverURL string, timer int, apiKey string) tea.Cmd {
 	return func() tea.Msg {
-		resp, err := http.Post(
-			fmt.Sprintf("%s/toggle?timer=%d", serverURL, timer), "application/json", nil,
-		)
+		req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/toggle?timer=%d", serverURL, timer), nil)
+		req.Header.Set("X-API-KEY", apiKey)
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return serverStateMsg{}
 		}
@@ -69,11 +72,11 @@ func toggleServerCmd(serverURL string, timer int) tea.Cmd {
 	}
 }
 
-func switchTimerCmd(serverURL string) tea.Cmd {
+func switchTimerCmd(serverURL string, apiKey string) tea.Cmd {
 	return func() tea.Msg {
-		resp, err := http.Post(
-			fmt.Sprintf("%s/switch", serverURL), "application/json", nil,
-		)
+		req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/switch", serverURL), nil)
+		req.Header.Set("X-API-KEY", apiKey)
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return serverStateMsg{}
 		}
@@ -129,9 +132,11 @@ func (m model) getTimerDisplay() (string, lipgloss.Style) {
 	return line, style
 }
 
-func fetchConfigCmd(serverURL string) tea.Cmd {
+func fetchConfigCmd(serverURL string, apiKey string) tea.Cmd {
 	return func() tea.Msg {
-		resp, err := http.Get(serverURL + "/config")
+		req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/config", serverURL), nil)
+		req.Header.Set("X-API-KEY", apiKey)
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return configLoadedMsg{}
 		}
@@ -142,10 +147,11 @@ func fetchConfigCmd(serverURL string) tea.Cmd {
 	}
 }
 
-func patchConfigCmd(serverURL string, key string, val int) tea.Cmd {
+func patchConfigCmd(serverURL string, key string, val int, apiKey string) tea.Cmd {
 	return func() tea.Msg {
 		body, _ := json.Marshal(map[string]int{key: val})
 		req, _ := http.NewRequest(http.MethodPatch, serverURL+"/config", bytes.NewReader(body))
+		req.Header.Set("X-API-KEY", apiKey)
 		req.Header.Set("Content-Type", "application/json")
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
