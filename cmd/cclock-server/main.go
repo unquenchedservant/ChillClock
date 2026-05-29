@@ -12,6 +12,10 @@ import (
 )
 
 func main() {
+	if err := config.EnsureConfigExists(); err != nil {
+		panic(err)
+	}
+
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		panic(err)
@@ -31,7 +35,7 @@ func main() {
 	http.HandleFunc("/toggle", handleToggle(t))
 	http.HandleFunc("/events", handleSSE((t)))
 
-	fmt.Println("CHillClock server running on 2420")
+	fmt.Println("ChillClock server running on 2420")
 	http.ListenAndServe(":2420", nil)
 }
 
