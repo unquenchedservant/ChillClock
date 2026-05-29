@@ -113,8 +113,10 @@ func main() {
 
 	fmt.Println("ChillClock server running on 2420")
 	if ssl {
+		fmt.Println("SSL enabled")
 		http.ListenAndServeTLS(":2420", *certFile, *keyFile, nil)
 	} else {
+		fmt.Println("SSL not enabled")
 		http.ListenAndServe(":2420", nil)
 	}
 }
