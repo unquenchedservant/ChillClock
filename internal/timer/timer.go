@@ -48,7 +48,7 @@ func New(cfg config.Config) *Timer {
 	}
 }
 
-func (t *Timer) Toggle(which int) {
+func (t *Timer) Toggle(activeTimer int) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -57,7 +57,7 @@ func (t *Timer) Toggle(which int) {
 		t.startTime = time.Now()
 		t.elapsed = 0
 		t.currentPhase = Phase1
-		t.activeTimer = which
+		t.activeTimer = activeTimer
 	} else {
 		t.running = false
 		t.elapsed = 0
