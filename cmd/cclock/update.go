@@ -38,6 +38,8 @@ func (m model) handleClockInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.inputBuffer = ""
 			return m, fetchConfigCmd(m.serverURL)
 		}
+	case "r":
+		return m.handleTimerSwitch()
 	case "d":
 		if !m.timerRunning {
 			if m.timerDefault == TIMER_1 {
@@ -56,6 +58,10 @@ func (m model) handleClockInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.handleTimerToggle(m.timerDefault)
 	}
 	return m, nil
+}
+
+func (m model) handleTimerSwitch() (tea.Model, tea.Cmd) {
+	return m, switchTimerCmd(m.serverURL)
 }
 
 func (m model) handleTimerToggle(timer int) (tea.Model, tea.Cmd) {
